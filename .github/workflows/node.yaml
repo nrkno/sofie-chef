@@ -27,8 +27,10 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Prepare Environment
         run: |
-          yarn setup
-      - name: Run typecheck and linter
+          yarn install
+      - name: Run typecheck
         run: |
           yarn build
+      - name: Run linter
+        run: |
           yarn lint

@@ -1,0 +1,105 @@
+import * as fs from 'fs'
+import * as path from 'path'
+import * as chokidar from 'chokidar'
+import * as _ from 'underscore'
+import { App } from 'electron'
+import { EventEmitter } from 'events'
+import { Logger } from '../lib/logging'
+import { fsExists } from '../lib/lib'
+import { Config, DEFAULT_CONFIG } from '../lib/config'
+
+/** The ConfigHelper is responsible for reading and writing to the Config-file */
+export class ConfigHelper extends EventEmitter {
+	/**
+	 * The In-memory copy of the Config.
+	 * This is NOT a read-only object, but can be updated in other parts of the application.
+	 * When an update to the config-object has been done, this.onUpdatedConfig(true) is to be called
+	 * in order to persist the data.
+	 */
+	private config: Config | undefined = undefined
+	private _initialized = false
+
+	constructor(private logger: Logger, private app: App) {
+		super()
+	}
+	/** Initialize the ConfigHelper */
+	public initialize(): void {
+		if (this._initialized) return
+		this._initialized = true
+
+		this.setupMonitorConfigFile()
+
+		this.logger.info(`Config file path: "${this.configFilePath}"`)
+	}
+	public addWindow(): void {
+		this.config?.windows.push(DEFAULT_CONFIG.windows[0])
+		this.onModifiedConfig(true)
+	}
+
+	/** Called when the config object has been modified */
+	public onModifiedConfig(
+		/** Whether the modified config needs to be written to disk. true by default */
+		configNeedsWrite = true
+	): void {
+		if (configNeedsWrite) {
+			if (this.config && !this.config?.freeze) {
+				// Write the config changes to file:
+				this.logger.debug(`Writing config file to disk, to "${this.configFilePath}"`)
+				fs.promises
+					.writeFile(this.configFilePath, JSON.stringify(this.config, undefined, 2))
+					.catch(this.logger.error)
+			}
+		}
+		this.emit('updated-config', this.config)
+	}
+
+	/** Sets up monitoring of config file */
+	private setupMonitorConfigFile() {
+		// Trigger an initial read of the config file:
+		this.onConfigFileChanged()
+
+		chokidar
+			.watch(this.configFilePath, {
+				awaitWriteFinish: {
+					stabilityThreshold: 500,
+					pollInterval: 100,
+				},
+			})
+			.on('all', () => {
+				this.onConfigFileChanged()
+			})
+	}
+	/** Called when the config file in disk has changed */
+	private onConfigFileChanged() {
+		this.readConfigFile()
+			.then(async (config) => {
+				if (!config) {
+					this.config = DEFAULT_CONFIG
+					this.onModifiedConfig(true)
+				} else if (!_.isEqual(this.config, config)) {
+					this.config = config
+					this.onModifiedConfig(false)
+				}
+			})
+			.catch(this.logger.error)
+	}
+	private get configFilePath(): string {
+		// The config file is located beside the executable:
+		let filePath = this.app.isPackaged ? path.dirname(this.app.getPath('exe')) : this.app.getAppPath()
+		filePath = filePath.replace(/dist[\\/]?$/, '')
+		return path.join(filePath, 'config.json')
+	}
+	private async readConfigFile(): Promise<Config | undefined> {
+		if (await fsExists(this.configFilePath)) {
+			const fileStr = await fs.promises.readFile(this.configFilePath, 'utf8')
+			try {
+				return JSON.parse(fileStr) as Config
+			} catch (err) {
+				this.logger.error(err)
+				return undefined
+			}
+		} else {
+			return undefined
+		}
+	}
+}
