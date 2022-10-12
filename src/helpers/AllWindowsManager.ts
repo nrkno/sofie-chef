@@ -1,5 +1,6 @@
 import { globalShortcut } from 'electron'
 import { EventEmitter } from 'events'
+import { StatusCode, StatusObject } from '../lib/api'
 import { Config } from '../lib/config'
 import { rateLimitAndDoLater } from '../lib/lib'
 import { Logger } from '../lib/logging'
@@ -21,6 +22,19 @@ export class AllWindowsManager extends EventEmitter {
 		})
 	}
 
+	public getWindow(windowIndex: number): WindowHelper | undefined {
+		const id = this.windowId(windowIndex)
+		return this.windowsHandlers[id]
+	}
+	public getStatus(): { [index: string]: StatusObject } {
+		const status: { [index: string]: StatusObject } = {}
+
+		for (const [id, window] of Object.entries(this.windowsHandlers)) {
+			status[id] = window.status
+		}
+		return status
+	}
+
 	/**
 	 * Trigger an update to the windows
 	 * @param config
@@ -35,7 +49,7 @@ export class AllWindowsManager extends EventEmitter {
 		}
 
 		for (let i = 0; i < config.windows.length; i++) {
-			const id = `window_${i}`
+			const id = this.windowId(i)
 
 			removeWindowIds.delete(id)
 
@@ -50,6 +64,10 @@ export class AllWindowsManager extends EventEmitter {
 
 				winHandler.on('config-has-been-modified', () => {
 					this.emit('config-has-been-modified')
+				})
+				winHandler.on('status', (status: StatusObject) => {
+					this.logger.info(`Status for ${id}: ${StatusCode[status.statusCode]} ${status.message}`)
+					this.emit('status', this.getStatus())
 				})
 				winHandler.on('closed', () => {
 					this.emit('closed-window', id)
@@ -75,5 +93,8 @@ export class AllWindowsManager extends EventEmitter {
 			if (winHandler.hasFocus()) return winHandler
 		}
 		return undefined
+	}
+	private windowId(index: number): string {
+		return `window_${index}`
 	}
 }

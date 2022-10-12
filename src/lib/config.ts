@@ -1,6 +1,8 @@
 export interface Config {
 	/** If true, won't update the config file automatically. */
 	freeze: boolean
+	/** Which port to start the API on. */
+	apiPort: number | undefined | null
 	/** A list of the windows to be created */
 	windows: ConfigWindow[]
 }
@@ -30,6 +32,7 @@ export interface ConfigWindow {
 }
 export const DEFAULT_CONFIG: Config = {
 	freeze: false,
+	apiPort: 5270,
 	windows: [
 		{
 			x: undefined,

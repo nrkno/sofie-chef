@@ -3,14 +3,24 @@ import { EventEmitter } from 'events'
 import { ConfigWindow } from '../lib/config'
 import _ = require('underscore')
 import { Logger } from '../lib/logging'
+import { StatusCode, StatusObject } from '../lib/api'
 
 export class WindowHelper extends EventEmitter {
 	private window: BrowserWindow
-	private title: string
-	constructor(private logger: Logger, private _config: ConfigWindow, title: string) {
+
+	private userAgent = 'sofie-chef' // (placeholder, is set properly later)
+
+	private url = '' // empty string means a blank page
+
+	private _status: StatusObject = {
+		statusCode: StatusCode.BAD,
+		message: 'N/A',
+	}
+	private _contentStatus?: StatusObject
+
+	constructor(private logger: Logger, private _config: ConfigWindow, private title: string) {
 		super()
 
-		this.title = title
 		this.window = new BrowserWindow({
 			height: this.config.height,
 			width: this.config.width,
@@ -18,9 +28,7 @@ export class WindowHelper extends EventEmitter {
 			y: this.config.width,
 
 			frame: !this.config.frameless,
-			webPreferences: {
-				// preload: this.getPreloadScript(),
-			},
+			webPreferences: {},
 			title: this.title,
 		})
 
@@ -42,22 +50,21 @@ export class WindowHelper extends EventEmitter {
 			this.emit('closed')
 		})
 
+		this.logger.debug('Creating new window')
+
 		this.updateWindow()
 	}
 	public get config(): ConfigWindow {
 		return this._config
 	}
 	public async init(): Promise<void> {
-		if (this._config.defaultURL) {
-			this.window.webContents.once('did-finish-load', () => {
-				this.window.setTitle(this.title)
-				// this.window.webContents.openDevTools()
-				this.window.webContents.executeJavaScript(this.getPreloadScript()).catch(this.logger.error)
-			})
+		// Set the user-agent:
+		this.userAgent = this.window.webContents.getUserAgent() + ' sofie-chef'
 
+		if (this._config.defaultURL) {
 			// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
 			// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
-			await this.window.loadURL(this._config.defaultURL, {})
+			await this.playURL(this._config.defaultURL)
 		}
 	}
 	public async close(): Promise<void> {
@@ -119,6 +126,83 @@ export class WindowHelper extends EventEmitter {
 		this.window.setFullScreen(!this.window.isFullScreen())
 		this.updateSizeAndPosition()
 	}
+	/** Play the specified URL in the window */
+	async playURL(url: string): Promise<void> {
+		if (this.url !== url) {
+			this.url = url
+
+			await this.restart()
+		}
+	}
+	/** Restarts (reloads) the window */
+	async restart(): Promise<void> {
+		delete this._contentStatus
+
+		try {
+			if (this.url) {
+				await this.window.loadURL(this.url, {
+					userAgent: this.userAgent,
+				})
+			} else {
+				await this.window.loadURL('about:blank', {
+					userAgent: this.userAgent,
+				})
+				// Make the background black:
+				await this.window.webContents.insertCSS('html, body { background-color: #000; }')
+			}
+			// Hide the cursor:
+			await this.window.webContents.insertCSS('html, body, * { cursor: none !important; }')
+
+			this.window.setTitle(this.title)
+			this.window.webContents.on('render-process-gone', (event, details) => {
+				if (details.reason !== 'clean-exit') {
+					this.status = {
+						statusCode: StatusCode.FATAL,
+						message: `Renderer process gone "${this.url}": ${details.reason}, ${details.exitCode}, "${event}"`,
+					}
+				}
+			})
+
+			await this.listenToContentStatuses()
+		} catch (err) {
+			this.status = {
+				statusCode: StatusCode.BAD,
+				message: `Error when loading "${this.url}": ${err}`,
+			}
+			throw err
+		}
+
+		this.status = {
+			statusCode: StatusCode.GOOD,
+			message: ``,
+		}
+	}
+	/** Stops playing the content in window */
+	async stop(): Promise<void> {
+		await this.playURL('')
+	}
+	/** Executes a javascript inside the web player */
+	async executeJavascript(script: string): Promise<void> {
+		await this.window.webContents.executeJavaScript(script)
+	}
+
+	public get status(): StatusObject {
+		let status = this._status
+		if (this._contentStatus && this._contentStatus.statusCode > status.statusCode) {
+			status = this._contentStatus
+		}
+		return status
+	}
+	private set status(status: StatusObject) {
+		if (this._status.statusCode !== status.statusCode || this._status.message !== status.message) {
+			this._status = status
+			this.emitStatus()
+		}
+	}
+	private emitStatus() {
+		this.emit('status', this.status)
+	}
+
 	private updateSizeAndPosition() {
 		this.config.fullScreen = this.window.isFullScreen()
 
@@ -134,12 +218,50 @@ export class WindowHelper extends EventEmitter {
 
 		this.emit('config-has-been-modified')
 	}
-	private getPreloadScript(): string {
-		return `
-document.body.style.cursor = 'none';
-window.addEventListener('DOMContentLoaded', () => {
-	document.body.style.cursor = 'none'
-})
-`
+
+	private async listenToContentStatuses() {
+		// Okay, real talk: This is honestly kind of a hack..
+		// But in my initial snooping around the ElectronJS docs I didn't find a good API
+		// that I could use to send messages from any arbitrary web page and to the main
+		// Electron process.
+		// So yeah.. this is definitely a hack, but it should work for now..
+
+		// Intercept certain console.log messages and interpret them as status-messages:
+		this.window.webContents.on('console-message', (_event, _level, message, _line, _sourceID) => {
+			const m = `${message}`.match(/^reportChefStatus: (.*)$/)
+			if (m) {
+				try {
+					const innerStatus = JSON.parse(m[1]) as {
+						status: 'good' | 'warning' | 'error'
+						message: string
+					}
+
+					this._contentStatus = {
+						statusCode:
+							innerStatus.status === 'good'
+								? StatusCode.GOOD
+								: innerStatus.status === 'warning'
+								? StatusCode.WARNING_MAJOR
+								: StatusCode.BAD,
+						message: innerStatus.message,
+					}
+					this.emitStatus()
+				} catch (_error) {
+					// ignore
+				}
+			}
+		})
+		// Inject convenience function into the web page.
+		// It can be accessed from the child web page like so:
+		// window.reportChefStatus('error', 'This is baaad')
+		await this.window.webContents.executeJavaScript(`
+/**
+* @param status "good" | "warning" | "error"
+* @param message string
+*/
+function reportChefStatus(status, message) {
+  console.log('reportChefStatus: ' + JSON.stringify({status, message: message || ''}))
+}
+`)
 	}
 }
