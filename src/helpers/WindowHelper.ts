@@ -55,8 +55,6 @@ export class WindowHelper extends EventEmitter {
 		})
 
 		this.logger.debug('Creating new window')
-
-		this.updateWindow()
 	}
 	public get config(): ConfigWindow {
 		return this._config
@@ -65,23 +63,25 @@ export class WindowHelper extends EventEmitter {
 		// Set the user-agent:
 		this.userAgent = this.window.webContents.getUserAgent() + ' sofie-chef'
 
+		await this.updateWindow()
+
 		// Trigger loading default page:
-		await this.restart()
+		// await this.restart()
 		// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
 		// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
 	}
 	public async close(): Promise<void> {
 		this.window.close()
 	}
-	public updateConfig(config: ConfigWindow): void {
+	public async updateConfig(config: ConfigWindow): Promise<void> {
 		const oldConfig = this._config
 		this._config = config
 
 		if (!_.isEqual(oldConfig, config)) {
-			this.updateWindow()
+			await this.updateWindow(oldConfig)
 		}
 	}
-	public updateWindow(): void {
+	public async updateWindow(oldConfig?: ConfigWindow): Promise<void> {
 		if (
 			this.config.x !== undefined &&
 			this.config.y !== undefined &&
@@ -118,6 +118,10 @@ export class WindowHelper extends EventEmitter {
 			this.window.setAlwaysOnTop(true, 'screen-saver')
 		} else {
 			this.window.setAlwaysOnTop(false)
+		}
+
+		if (!this.url && this.config.defaultURL !== oldConfig?.defaultURL) {
+			await this.restart()
 		}
 
 		this.window.moveTop()

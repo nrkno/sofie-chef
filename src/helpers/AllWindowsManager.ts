@@ -73,7 +73,7 @@ export class AllWindowsManager extends EventEmitter {
 					this.emit('closed-window', id)
 				})
 				this.lastFocusedWindow = winHandler
-				await this.windowsHandlers[id].init()
+				await winHandler.init()
 			} else {
 				// Update existing window
 				// this.logger.info(`Update window "${id}", ${JSON.stringify(configWindow)}`)

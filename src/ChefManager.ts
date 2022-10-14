@@ -43,7 +43,7 @@ export class ChefManager {
 
 		this.configHelper.initialize()
 		this.configHelper.on('updated-config', (config: Config) => {
-			this.logger.info('Updated config:\n' + JSON.stringify(config))
+			this.logger.debug('Updated config:\n' + JSON.stringify(config))
 			this.windowsHelper.triggerUpdateWindows(config)
 
 			this.api.init(config)
