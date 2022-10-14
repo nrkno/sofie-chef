@@ -26,6 +26,9 @@ export class AllWindowsManager extends EventEmitter {
 	public getWindow(id: string): WindowHelper | undefined {
 		return this.windowsHandlers[id]
 	}
+	public getAllWindows(): WindowHelper[] {
+		return Object.values(this.windowsHandlers)
+	}
 	public getStatus(): { [index: string]: StatusObject } {
 		const status: { [index: string]: StatusObject } = {}
 

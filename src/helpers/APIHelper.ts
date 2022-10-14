@@ -238,10 +238,15 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 	private async apiRestart(windowId: unknown | string): Promise<APIResponse> {
 		if (typeof windowId !== 'string') return { code: 400, body: 'windowId must be a string' }
 		else {
-			const window = this.windowsHelper.getWindow(windowId)
-			if (!window) return { code: 404, body: `windowId ${windowId} not found` }
+			if (windowId === '$all') {
+				// "$all" is a magic token to restart all windows
+				await Promise.all(this.windowsHelper.getAllWindows().map(async (window) => window.restart()))
+			} else {
+				const window = this.windowsHelper.getWindow(windowId)
+				if (!window) return { code: 404, body: `windowId ${windowId} not found` }
 
-			await window.restart()
+				await window.restart()
+			}
 			return { code: 200, body: 'ok' }
 		}
 	}
