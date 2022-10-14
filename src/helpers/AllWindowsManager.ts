@@ -56,7 +56,7 @@ export class AllWindowsManager extends EventEmitter {
 			if (!window) {
 				// Create a new window
 				this.logger.info(`Create new window "${id}", ${JSON.stringify(configWindow)}`)
-				const winHandler = new WindowHelper(this.logger, configWindow, `Chef window ${id}`)
+				const winHandler = new WindowHelper(this.logger, id, configWindow, `Chef window ${id}`)
 				this.windowsHandlers[id] = winHandler
 
 				winHandler.on('config-has-been-modified', () => {
@@ -77,7 +77,7 @@ export class AllWindowsManager extends EventEmitter {
 			} else {
 				// Update existing window
 				// this.logger.info(`Update window "${id}", ${JSON.stringify(configWindow)}`)
-				window.updateConfig(configWindow)
+				await window.updateConfig(configWindow)
 			}
 		}
 

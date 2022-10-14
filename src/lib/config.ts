@@ -23,6 +23,9 @@ export interface ConfigWindow {
 	/** Set to true make the window always-on-top */
 	onTop?: boolean
 
+	/** When true, will display an overlay with debug information */
+	displayDebug?: boolean
+
 	/**
 	 * Set to true to make the window "frameless" (borderless).
 	 * This could be useful in a situation where you don't want a fullscreen window
@@ -45,6 +48,7 @@ export const DEFAULT_CONFIG: Config = {
 			fullScreen: false,
 			onTop: false,
 			frameless: false,
+			displayDebug: true,
 			defaultURL: 'https://bouncingdvdlogo.com/',
 		},
 	},

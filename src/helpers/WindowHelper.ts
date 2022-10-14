@@ -19,7 +19,7 @@ export class WindowHelper extends EventEmitter {
 	}
 	private _contentStatus?: StatusObject
 
-	constructor(private logger: Logger, private _config: ConfigWindow, private title: string) {
+	constructor(private logger: Logger, private id: string, private _config: ConfigWindow, private title: string) {
 		super()
 
 		this.window = new BrowserWindow({
@@ -123,6 +123,9 @@ export class WindowHelper extends EventEmitter {
 		if (!this.url && this.config.defaultURL !== oldConfig?.defaultURL) {
 			await this.restart()
 		}
+		if (this.config.displayDebug !== oldConfig?.displayDebug) {
+			await this.restart()
+		}
 
 		this.window.moveTop()
 	}
@@ -146,8 +149,7 @@ export class WindowHelper extends EventEmitter {
 		delete this._contentStatus
 
 		try {
-			let url = this.url
-			if (url === null) url = this._config.defaultURL
+			const url = this.getURL()
 			if (url) {
 				await this.window.loadURL(url, {
 					userAgent: this.userAgent,
@@ -173,6 +175,10 @@ export class WindowHelper extends EventEmitter {
 			})
 
 			await this.listenToContentStatuses()
+
+			if (this.config.displayDebug) {
+				await this.displayDebugOverlay()
+			}
 		} catch (err) {
 			this.status = {
 				statusCode: StatusCode.ERROR,
@@ -227,6 +233,10 @@ export class WindowHelper extends EventEmitter {
 
 		this.emit('config-has-been-modified')
 	}
+	private getURL(): string {
+		if (this.url === null) return this._config.defaultURL
+		return this.url
+	}
 
 	private async listenToContentStatuses() {
 		// Okay, real talk: This is honestly kind of a hack..
@@ -272,5 +282,41 @@ function reportChefStatus(status, message) {
   console.log('reportChefStatus: ' + JSON.stringify({status, message: message || ''}))
 }
 `)
+	}
+	private async displayDebugOverlay() {
+		await this.window.webContents.executeJavaScript(`
+function setupMonitor() {
+	var overlay = document.createElement('div');
+	overlay.style.cssText = 'display: block;position:fixed;top:0;right: 0;z-index:99999;color: #0f0;font-family: monospace;';
+	document.body.appendChild(overlay);
+
+	var lastFrameTime = performance.now();
+	var avgFps = 0;
+
+	function updateFrame () {
+		var now = performance.now();
+		var frameDuration = now - lastFrameTime;
+		lastFrameTime = now;
+
+		var fps = 1000 / frameDuration;
+
+		if (!avgFps) avgFps = fps;
+
+		avgFps += (fps - avgFps) * 0.02 // Gliding average;
+
+		overlay.innerHTML = (
+			'<b>${this.id}</b>'+
+			'<br>${this.getURL() || 'blank'}'+
+			'<br>FPS: ' + Math.round(fps) +
+			'<br>AVG FPS: ' + Math.round(avgFps)
+		);
+		requestAnimationFrame(updateFrame);
+	}
+	requestAnimationFrame(() => {
+		lastFrameTime = performance.now();
+		requestAnimationFrame(updateFrame);
+	})
+}
+setupMonitor();`)
 	}
 }
