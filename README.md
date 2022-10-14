@@ -12,7 +12,7 @@ Most properties of the `config.json`-file are also automatically updated when mo
 
 ## Keyboard shortcuts
 
-- `Alt+CTRL+F` toggles fullscreen for the currently selected window
+- `CTRL+Alt+SHIFT+F` toggles fullscreen for the current (or last) selected window
 
 ## Configuration
 

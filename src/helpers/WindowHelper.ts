@@ -46,6 +46,9 @@ export class WindowHelper extends EventEmitter {
 		this.window.on('unmaximize', () => {
 			this.updateSizeAndPosition()
 		})
+		this.window.on('focus', () => {
+			this.emit('focus')
+		})
 		this.window.on('close', () => {
 			this.emit('closed')
 		})

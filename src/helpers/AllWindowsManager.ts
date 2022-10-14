@@ -10,15 +10,16 @@ import { WindowHelper } from './WindowHelper'
 /** The AllWindowsManager is responsible for spawning the various windows */
 export class AllWindowsManager extends EventEmitter {
 	private windowsHandlers: { [id: string]: WindowHelper } = {}
+	private lastFocusedWindow: WindowHelper | undefined | undefined
 
 	constructor(private logger: Logger) {
 		super()
 	}
 
 	public initialize(): void {
-		// Alt+CTRL+F makes a window fullscreen:
-		globalShortcut.register('Alt+CommandOrControl+F', () => {
-			this.findFocusWindow()?.toggleFullScreen()
+		// CTRL+Alt+SHIFT+F makes a window fullscreen:
+		globalShortcut.register('CommandOrControl+Alt+Shift+F', () => {
+			this.lastFocusedWindow?.toggleFullScreen()
 		})
 	}
 
@@ -69,9 +70,13 @@ export class AllWindowsManager extends EventEmitter {
 					this.logger.info(`Status for ${id}: ${StatusCode[status.statusCode]} ${status.message}`)
 					this.emit('status', this.getStatus())
 				})
+				winHandler.on('focus', () => {
+					this.lastFocusedWindow = winHandler
+				})
 				winHandler.on('closed', () => {
 					this.emit('closed-window', id)
 				})
+				this.lastFocusedWindow = winHandler
 				await this.windowsHandlers[id].init()
 			} else {
 				// Update existing window
@@ -86,13 +91,6 @@ export class AllWindowsManager extends EventEmitter {
 			await this.windowsHandlers[id].close()
 			delete this.windowsHandlers[id]
 		}
-	}
-	/** Look up and return a window which currently has focus */
-	private findFocusWindow(): WindowHelper | undefined {
-		for (const winHandler of Object.values(this.windowsHandlers)) {
-			if (winHandler.hasFocus()) return winHandler
-		}
-		return undefined
 	}
 	private windowId(index: number): string {
 		return `window_${index}`
