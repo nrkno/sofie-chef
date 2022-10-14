@@ -6,7 +6,7 @@ import { App } from 'electron'
 import { EventEmitter } from 'events'
 import { Logger } from '../lib/logging'
 import { fsExists } from '../lib/lib'
-import { Config, DEFAULT_CONFIG } from '../lib/config'
+import { Config, ConfigWindow, DEFAULT_CONFIG } from '../lib/config'
 
 /** The ConfigHelper is responsible for reading and writing to the Config-file */
 export class ConfigHelper extends EventEmitter {
@@ -32,8 +32,17 @@ export class ConfigHelper extends EventEmitter {
 		this.logger.info(`Config file path: "${this.configFilePath}"`)
 	}
 	public addWindow(): void {
-		this.config?.windows.push(DEFAULT_CONFIG.windows[0])
-		this.onModifiedConfig(true)
+		if (this.config) {
+			let nextWindowId = ''
+			for (let i = 0; i < 999; i++) {
+				nextWindowId = 'window_' + i
+				if (!this.config?.windows[nextWindowId]) {
+					break
+				}
+			}
+			this.config.windows[nextWindowId] = DEFAULT_CONFIG.windows.default
+			this.onModifiedConfig(true)
+		}
 	}
 
 	/** Called when the config object has been modified */
@@ -76,12 +85,28 @@ export class ConfigHelper extends EventEmitter {
 				if (!config) {
 					this.config = DEFAULT_CONFIG
 					this.onModifiedConfig(true)
-				} else if (!_.isEqual(this.config, config)) {
-					this.config = config
-					this.onModifiedConfig(false)
+				} else {
+					this.ensureCompatibility(config)
+
+					if (!_.isEqual(this.config, config)) {
+						this.config = config
+						this.onModifiedConfig(false)
+					}
 				}
 			})
 			.catch(this.logger.error)
+	}
+	private ensureCompatibility(config: Config): void {
+		const anyConfig = config as any
+		if (Array.isArray(anyConfig.windows)) {
+			const windowsArray = anyConfig.windows as ConfigWindow[]
+			config.windows = {}
+			for (let i = 0; i < windowsArray.length; i++) {
+				const window = windowsArray[i]
+				const windowId = 'window_' + i
+				config.windows[windowId] = window
+			}
+		}
 	}
 	private get configFilePath(): string {
 		// The config file is located beside the executable:

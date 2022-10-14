@@ -10,10 +10,11 @@ export class WindowHelper extends EventEmitter {
 
 	private userAgent = 'sofie-chef' // (placeholder, is set properly later)
 
-	private url = '' // empty string means a blank page
+	/** empty string means a blank page, null means defaultURL */
+	private url: string | null = null
 
 	private _status: StatusObject = {
-		statusCode: StatusCode.BAD,
+		statusCode: StatusCode.ERROR,
 		message: 'N/A',
 	}
 	private _contentStatus?: StatusObject
@@ -64,11 +65,10 @@ export class WindowHelper extends EventEmitter {
 		// Set the user-agent:
 		this.userAgent = this.window.webContents.getUserAgent() + ' sofie-chef'
 
-		if (this._config.defaultURL) {
-			// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
-			// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
-			await this.playURL(this._config.defaultURL)
-		}
+		// Trigger loading default page:
+		await this.restart()
+		// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
+		// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
 	}
 	public async close(): Promise<void> {
 		this.window.close()
@@ -130,7 +130,7 @@ export class WindowHelper extends EventEmitter {
 		this.updateSizeAndPosition()
 	}
 	/** Play the specified URL in the window */
-	async playURL(url: string): Promise<void> {
+	async playURL(url: string | null): Promise<void> {
 		if (this.url !== url) {
 			this.url = url
 
@@ -142,8 +142,10 @@ export class WindowHelper extends EventEmitter {
 		delete this._contentStatus
 
 		try {
-			if (this.url) {
-				await this.window.loadURL(this.url, {
+			let url = this.url
+			if (url === null) url = this._config.defaultURL
+			if (url) {
+				await this.window.loadURL(url, {
 					userAgent: this.userAgent,
 				})
 			} else {
@@ -160,7 +162,7 @@ export class WindowHelper extends EventEmitter {
 			this.window.webContents.on('render-process-gone', (event, details) => {
 				if (details.reason !== 'clean-exit') {
 					this.status = {
-						statusCode: StatusCode.FATAL,
+						statusCode: StatusCode.ERROR,
 						message: `Renderer process gone "${this.url}": ${details.reason}, ${details.exitCode}, "${event}"`,
 					}
 				}
@@ -169,7 +171,7 @@ export class WindowHelper extends EventEmitter {
 			await this.listenToContentStatuses()
 		} catch (err) {
 			this.status = {
-				statusCode: StatusCode.BAD,
+				statusCode: StatusCode.ERROR,
 				message: `Error when loading "${this.url}": ${err}`,
 			}
 			throw err
@@ -182,7 +184,7 @@ export class WindowHelper extends EventEmitter {
 	}
 	/** Stops playing the content in window */
 	async stop(): Promise<void> {
-		await this.playURL('')
+		await this.playURL(null)
 	}
 	/** Executes a javascript inside the web player */
 	async executeJavascript(script: string): Promise<void> {
@@ -244,8 +246,8 @@ export class WindowHelper extends EventEmitter {
 							innerStatus.status === 'good'
 								? StatusCode.GOOD
 								: innerStatus.status === 'warning'
-								? StatusCode.WARNING_MAJOR
-								: StatusCode.BAD,
+								? StatusCode.WARNING
+								: StatusCode.ERROR,
 						message: innerStatus.message,
 					}
 					this.emitStatus()

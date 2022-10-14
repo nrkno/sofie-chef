@@ -3,8 +3,10 @@ export interface Config {
 	freeze: boolean
 	/** Which port to start the API on. */
 	apiPort: number | undefined | null
+	/** When set, require all API requests to set apiKey */
+	apiKey?: string
 	/** A list of the windows to be created */
-	windows: ConfigWindow[]
+	windows: { [id: string]: ConfigWindow }
 }
 export interface ConfigWindow {
 	/** X-position of the window */
@@ -33,8 +35,9 @@ export interface ConfigWindow {
 export const DEFAULT_CONFIG: Config = {
 	freeze: false,
 	apiPort: 5270,
-	windows: [
-		{
+	apiKey: '',
+	windows: {
+		default: {
 			x: undefined,
 			y: undefined,
 			width: 1280,
@@ -44,5 +47,5 @@ export const DEFAULT_CONFIG: Config = {
 			frameless: false,
 			defaultURL: 'https://bouncingdvdlogo.com/',
 		},
-	],
+	},
 }

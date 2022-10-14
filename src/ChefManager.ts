@@ -46,9 +46,7 @@ export class ChefManager {
 			this.logger.info('Updated config:\n' + JSON.stringify(config))
 			this.windowsHelper.triggerUpdateWindows(config)
 
-			if (config.apiPort) {
-				this.api.init(config.apiPort)
-			}
+			this.api.init(config)
 		})
 	}
 	public onActivate(): void {
