@@ -1,8 +1,8 @@
-import * as fs from 'fs/promises'
+import * as fs from 'fs'
 
 export async function fsExists(path: string): Promise<boolean> {
 	try {
-		await fs.access(path, fs.constants.F_OK)
+		await fs.promises.access(path, fs.constants.F_OK)
 		return true
 	} catch {
 		return false
