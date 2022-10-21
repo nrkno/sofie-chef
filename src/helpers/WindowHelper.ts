@@ -25,8 +25,8 @@ export class WindowHelper extends EventEmitter {
 		this.window = new BrowserWindow({
 			height: this.config.height,
 			width: this.config.width,
-			x: this.config.width,
-			y: this.config.width,
+			x: this.config.x,
+			y: this.config.y,
 
 			frame: !this.config.frameless,
 			webPreferences: {},
@@ -231,7 +231,7 @@ export class WindowHelper extends EventEmitter {
 			this.config.height = newBounds.height
 		}
 
-		this.emit('config-has-been-modified')
+		this.emit('window-has-been-modified')
 	}
 	private getURL(): string {
 		if (this.url === null) return this._config.defaultURL

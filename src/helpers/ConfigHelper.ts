@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as chokidar from 'chokidar'
 import * as _ from 'underscore'
@@ -19,9 +19,17 @@ export class ConfigHelper extends EventEmitter {
 	private config: Config | undefined = undefined
 	private _initialized = false
 
-	constructor(private logger: Logger, private app: App) {
+	private static _singletonInstance: ConfigHelper
+	private constructor(private logger: Logger, private app: App) {
 		super()
 	}
+
+	static GetConfigHelper(logger: Logger, app: App): ConfigHelper {
+		// return singleton
+		this._singletonInstance = this._singletonInstance ?? new ConfigHelper(logger, app)
+		return this._singletonInstance
+	}
+
 	/** Initialize the ConfigHelper */
 	public initialize(): void {
 		if (this._initialized) return
@@ -54,9 +62,7 @@ export class ConfigHelper extends EventEmitter {
 			if (this.config && !this.config?.freeze) {
 				// Write the config changes to file:
 				this.logger.debug(`Writing config file to disk, to "${this.configFilePath}"`)
-				fs.promises
-					.writeFile(this.configFilePath, JSON.stringify(this.config, undefined, 2))
-					.catch(this.logger.error)
+				fs.writeFile(this.configFilePath, JSON.stringify(this.config, undefined, 2)).catch(this.logger.error)
 			}
 		}
 		this.emit('updated-config', this.config)
@@ -116,7 +122,7 @@ export class ConfigHelper extends EventEmitter {
 	}
 	private async readConfigFile(): Promise<Config | undefined> {
 		if (await fsExists(this.configFilePath)) {
-			const fileStr = await fs.promises.readFile(this.configFilePath, 'utf8')
+			const fileStr = await fs.readFile(this.configFilePath, 'utf8')
 			try {
 				return JSON.parse(fileStr) as Config
 			} catch (err) {

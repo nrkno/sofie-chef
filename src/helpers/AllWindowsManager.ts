@@ -12,8 +12,14 @@ export class AllWindowsManager extends EventEmitter {
 	private windowsHandlers: { [id: string]: WindowHelper } = {}
 	private lastFocusedWindow: WindowHelper | undefined | undefined
 
-	constructor(private logger: Logger) {
+	private static _singletonInstance: AllWindowsManager
+	private constructor(private logger: Logger) {
 		super()
+	}
+	static GetAllWindowsManager(logger: Logger): AllWindowsManager {
+		// return singleton
+		this._singletonInstance = this._singletonInstance ?? new AllWindowsManager(logger)
+		return this._singletonInstance
 	}
 
 	public initialize(): void {
@@ -62,8 +68,8 @@ export class AllWindowsManager extends EventEmitter {
 				const winHandler = new WindowHelper(this.logger, id, configWindow, `Chef window ${id}`)
 				this.windowsHandlers[id] = winHandler
 
-				winHandler.on('config-has-been-modified', () => {
-					this.emit('config-has-been-modified')
+				winHandler.on('window-has-been-modified', () => {
+					this.emit('window-has-been-modified')
 				})
 				winHandler.on('status', (status: StatusObject) => {
 					this.logger.info(`Status for ${id}: ${status.statusCode} ${status.message}`)

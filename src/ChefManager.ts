@@ -18,10 +18,10 @@ export class ChefManager {
 	}
 
 	constructor(private logger: Logger, private app: App) {
-		this.configHelper = new ConfigHelper(this.logger, this.app)
-		this.windowsHelper = new AllWindowsManager(this.logger)
+		this.configHelper = ConfigHelper.GetConfigHelper(this.logger, this.app)
+		this.windowsHelper = AllWindowsManager.GetAllWindowsManager(this.logger)
 
-		this.windowsHelper.on('config-has-been-modified', () => {
+		this.windowsHelper.on('window-has-been-modified', () => {
 			this.configHelper.onModifiedConfig(true)
 		})
 		this.windowsHelper.on('status', (windowsStatus) => {
@@ -35,7 +35,7 @@ export class ChefManager {
 			this.logger.warn(`Window "${id}" closed!`)
 		})
 
-		this.api = new APIHelper(this.logger, this.windowsHelper)
+		this.api = APIHelper.GetAPIHelper(this.logger, this.windowsHelper)
 	}
 
 	public onAppReady(): void {

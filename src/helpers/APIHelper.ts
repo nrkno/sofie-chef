@@ -34,9 +34,14 @@ export class APIHelper {
 		},
 		windows: {},
 	}
-
-	constructor(private logger: Logger, private windowsHelper: AllWindowsManager) {
+	private static _singletonInstance: APIHelper
+	private constructor(private logger: Logger, private windowsHelper: AllWindowsManager) {
 		// Nothing
+	}
+	static GetAPIHelper(logger: Logger, windowsHelper: AllWindowsManager): APIHelper {
+		// return singleton
+		this._singletonInstance = this._singletonInstance ?? new APIHelper(logger, windowsHelper)
+		return this._singletonInstance
 	}
 	public init(config: Config): void {
 		this.config = config
@@ -221,9 +226,11 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		url: unknown | string,
 		jsCode: unknown | string | undefined
 	): Promise<APIResponse> {
-		if (typeof windowId !== 'string') return { code: 400, body: 'windowId must be a string' }
-		else if (typeof url !== 'string') return { code: 400, body: 'url must be a string' }
-		else {
+		if (typeof windowId !== 'string') {
+			return { code: 400, body: 'windowId must be a string' }
+		} else if (typeof url !== 'string') {
+			return { code: 400, body: 'url must be a string' }
+		} else {
 			const window = this.windowsHelper.getWindow(windowId)
 			if (!window) return { code: 404, body: `windowId ${windowId} not found` }
 
@@ -236,8 +243,9 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		}
 	}
 	private async apiRestart(windowId: unknown | string): Promise<APIResponse> {
-		if (typeof windowId !== 'string') return { code: 400, body: 'windowId must be a string' }
-		else {
+		if (typeof windowId !== 'string') {
+			return { code: 400, body: 'windowId must be a string' }
+		} else {
 			if (windowId === '$all') {
 				// "$all" is a magic token to restart all windows
 				await Promise.all(this.windowsHelper.getAllWindows().map(async (window) => window.restart()))
@@ -251,8 +259,9 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		}
 	}
 	private async apiStop(windowId: unknown | string): Promise<APIResponse> {
-		if (typeof windowId !== 'string') return { code: 400, body: 'windowId must be a string' }
-		else {
+		if (typeof windowId !== 'string') {
+			return { code: 400, body: 'windowId must be a string' }
+		} else {
 			const window = this.windowsHelper.getWindow(windowId)
 			if (!window) return { code: 404, body: `windowId ${windowId} not found` }
 
@@ -261,9 +270,11 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		}
 	}
 	private async apiExecute(windowId: unknown | string, jsCode: unknown | string): Promise<APIResponse> {
-		if (typeof windowId !== 'string') return { code: 400, body: 'windowId must be a string' }
-		else if (typeof jsCode !== 'string') return { code: 400, body: 'jsCode must be a string' }
-		else {
+		if (typeof windowId !== 'string') {
+			return { code: 400, body: 'windowId must be a string' }
+		} else if (typeof jsCode !== 'string') {
+			return { code: 400, body: 'jsCode must be a string' }
+		} else {
 			const window = this.windowsHelper.getWindow(windowId)
 			if (!window) return { code: 404, body: `windowId ${windowId} not found` }
 

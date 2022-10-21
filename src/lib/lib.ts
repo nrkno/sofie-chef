@@ -1,12 +1,12 @@
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 
 export async function fsExists(path: string): Promise<boolean> {
-	return new Promise<boolean>((resolve) => {
-		fs.access(path, fs.constants.F_OK, (err) => {
-			if (err) resolve(false)
-			else resolve(true)
-		})
-	})
+	try {
+		await fs.access(path, fs.constants.F_OK)
+		return true
+	} catch {
+		return false
+	}
 }
 
 /** Make a string out of an error (or other equivalents), including any additional data such as stack trace if available */
