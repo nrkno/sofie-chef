@@ -237,6 +237,53 @@ export class WindowHelper extends EventEmitter {
 		if (this.url === null) return this._config.defaultURL
 		return this.url
 	}
+	private handleConsoleMessage = (
+		_event: Electron.Event,
+		level: number,
+		message: string,
+		line: number,
+		sourceId: string
+	): void => {
+		const m = `${message}`.match(/^reportChefStatus: (.*)$/)
+		if (m) {
+			try {
+				const innerStatus = JSON.parse(m[1]) as {
+					status: 'good' | 'warning' | 'error'
+					message: string
+				}
+
+				let statusCode: StatusCode
+				switch (innerStatus.status) {
+					case 'good': {
+						statusCode = StatusCode.GOOD
+						break
+					}
+					case 'warning': {
+						statusCode = StatusCode.WARNING
+						break
+					}
+					case 'error': {
+						statusCode = StatusCode.ERROR
+						break
+					}
+				}
+
+				this._contentStatus = {
+					statusCode,
+					message: innerStatus.message,
+				}
+				this.emitStatus()
+			} catch (_error) {
+				// ignore
+			}
+		} else {
+			// It's a common log message
+			if (this.config.logContent) {
+				const logMessage = `[${level}] ${message} at ${sourceId}:${line}`
+				this.logger.debug(`${this.id}: ${logMessage}`)
+			}
+		}
+	}
 
 	private async listenToContentStatuses() {
 		// Okay, real talk: This is honestly kind of a hack..
@@ -246,30 +293,9 @@ export class WindowHelper extends EventEmitter {
 		// So yeah.. this is definitely a hack, but it should work for now..
 
 		// Intercept certain console.log messages and interpret them as status-messages:
-		this.window.webContents.on('console-message', (_event, _level, message, _line, _sourceID) => {
-			const m = `${message}`.match(/^reportChefStatus: (.*)$/)
-			if (m) {
-				try {
-					const innerStatus = JSON.parse(m[1]) as {
-						status: 'good' | 'warning' | 'error'
-						message: string
-					}
+		this.window.webContents.off('console-message', this.handleConsoleMessage)
+		this.window.webContents.on('console-message', this.handleConsoleMessage)
 
-					this._contentStatus = {
-						statusCode:
-							innerStatus.status === 'good'
-								? StatusCode.GOOD
-								: innerStatus.status === 'warning'
-								? StatusCode.WARNING
-								: StatusCode.ERROR,
-						message: innerStatus.message,
-					}
-					this.emitStatus()
-				} catch (_error) {
-					// ignore
-				}
-			}
-		})
 		// Inject convenience function into the web page.
 		// It can be accessed from the child web page like so:
 		// window.reportChefStatus('error', 'This is baaad')

@@ -26,6 +26,9 @@ export interface ConfigWindow {
 	/** When true, will display an overlay with debug information */
 	displayDebug?: boolean
 
+	/** When true, web-content console.log will be output to console */
+	logContent?: boolean
+
 	/**
 	 * Set to true to make the window "frameless" (borderless).
 	 * This could be useful in a situation where you don't want a fullscreen window
