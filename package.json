@@ -14,7 +14,7 @@
     "start": "electron ./dist/main.js",
     "build:binary": "electron-builder",
     "dev": "yarn && yarn build && concurrently --kill-others \"yarn watch:build\" \"yarn watch:electron\"",
-    "release:release": "standard-version lerna version --force-publish --no-push",
+    "release:release": "standard-version",
     "release": "yarn release:release"
   },
   "repository": "https://github.com/nrkno/sofie-chef",
@@ -35,6 +35,7 @@
     "@types/koa-bodyparser": "^4.3.0",
     "@types/underscore": "^1.11.4",
     "@types/ws": "^8.5.3",
+    "standard-version": "^9.5.0",
     "concurrently": "^7.4.0",
     "electron": "^20.1.3",
     "electron-builder": "^22.14.13",
