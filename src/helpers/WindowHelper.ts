@@ -3,7 +3,8 @@ import { EventEmitter } from 'events'
 import { ConfigWindow } from '../lib/config'
 import _ = require('underscore')
 import { Logger } from '../lib/logging'
-import { StatusCode, StatusObject } from '../lib/api'
+import { ReportStatusIpcPayload, StatusCode, StatusObject } from '../lib/api'
+import * as path from 'path'
 
 export class WindowHelper extends EventEmitter {
 	private window: BrowserWindow
@@ -29,7 +30,9 @@ export class WindowHelper extends EventEmitter {
 			y: this.config.y,
 
 			frame: !this.config.frameless,
-			webPreferences: {},
+			webPreferences: {
+				preload: path.join(__dirname, '../lib/preload.js'),
+			},
 			title: this.title,
 		})
 
@@ -201,6 +204,15 @@ export class WindowHelper extends EventEmitter {
 		await this.window.webContents.executeJavaScript(script)
 	}
 
+	receiveExternalStatus(browserWindow: BrowserWindow, payload: ReportStatusIpcPayload): void {
+		if (browserWindow !== this.window) return
+
+		this.status = {
+			statusCode: payload.status,
+			message: payload.message || '',
+		}
+	}
+
 	public get status(): StatusObject {
 		let status = this._status
 		if (this._contentStatus && this._contentStatus.statusCode > status.statusCode) {
@@ -244,70 +256,15 @@ export class WindowHelper extends EventEmitter {
 		line: number,
 		sourceId: string
 	): void => {
-		const m = `${message}`.match(/^reportChefStatus: (.*)$/)
-		if (m) {
-			try {
-				const innerStatus = JSON.parse(m[1]) as {
-					status: 'good' | 'warning' | 'error'
-					message: string
-				}
-
-				let statusCode: StatusCode
-				switch (innerStatus.status) {
-					case 'good': {
-						statusCode = StatusCode.GOOD
-						break
-					}
-					case 'warning': {
-						statusCode = StatusCode.WARNING
-						break
-					}
-					case 'error': {
-						statusCode = StatusCode.ERROR
-						break
-					}
-				}
-
-				this._contentStatus = {
-					statusCode,
-					message: innerStatus.message,
-				}
-				this.emitStatus()
-			} catch (_error) {
-				// ignore
-			}
-		} else {
-			// It's a common log message
-			if (this.config.logContent) {
-				const logMessage = `[${level}] ${message} at ${sourceId}:${line}`
-				this.logger.debug(`${this.id}: ${logMessage}`)
-			}
+		if (this.config.logContent) {
+			const logMessage = `[${level}] ${message} at ${sourceId}:${line}`
+			this.logger.debug(`${this.id}: ${logMessage}`)
 		}
 	}
 
 	private async listenToContentStatuses() {
-		// Okay, real talk: This is honestly kind of a hack..
-		// But in my initial snooping around the ElectronJS docs I didn't find a good API
-		// that I could use to send messages from any arbitrary web page and to the main
-		// Electron process.
-		// So yeah.. this is definitely a hack, but it should work for now..
-
-		// Intercept certain console.log messages and interpret them as status-messages:
 		this.window.webContents.off('console-message', this.handleConsoleMessage)
 		this.window.webContents.on('console-message', this.handleConsoleMessage)
-
-		// Inject convenience function into the web page.
-		// It can be accessed from the child web page like so:
-		// window.reportChefStatus('error', 'This is baaad')
-		await this.window.webContents.executeJavaScript(`
-/**
-* @param status "good" | "warning" | "error"
-* @param message string
-*/
-function reportChefStatus(status, message) {
-  console.log('reportChefStatus: ' + JSON.stringify({status, message: message || ''}))
-}
-`)
 	}
 	private async displayDebugOverlay() {
 		await this.window.webContents.executeJavaScript(`

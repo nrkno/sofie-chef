@@ -79,3 +79,13 @@ export interface StatusObject {
 	statusCode: StatusCode
 	message: string
 }
+
+export enum IpcMethods {
+	// Note: update this enum in lib/preload.ts when changed
+	ReportStatus = 'ReportStatus',
+}
+
+export interface ReportStatusIpcPayload {
+	status: StatusCode
+	message?: string
+}

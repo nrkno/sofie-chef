@@ -1,6 +1,6 @@
-import { globalShortcut } from 'electron'
+import { BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import { EventEmitter } from 'events'
-import { StatusObject } from '../lib/api'
+import { IpcMethods, ReportStatusIpcPayload, StatusObject } from '../lib/api'
 import { Config } from '../lib/config'
 import { rateLimitAndDoLater } from '../lib/lib'
 import { Logger } from '../lib/logging'
@@ -15,6 +15,13 @@ export class AllWindowsManager extends EventEmitter {
 	private static _singletonInstance: AllWindowsManager
 	private constructor(private logger: Logger) {
 		super()
+
+		ipcMain.on(IpcMethods.ReportStatus, (event, payload: ReportStatusIpcPayload) => {
+			const browserWindow = BrowserWindow.fromWebContents(event.sender)
+			if (!browserWindow) return
+
+			this.getAllWindows().forEach((w) => w.receiveExternalStatus(browserWindow, payload))
+		})
 	}
 	static GetAllWindowsManager(logger: Logger): AllWindowsManager {
 		// return singleton
