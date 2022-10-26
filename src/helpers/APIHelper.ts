@@ -24,6 +24,7 @@ export class APIHelper {
 	private wsServer: WebSocketServer | undefined
 
 	private connectedClients: WebSocket[] = []
+	private connectedId = 0
 
 	private config: Config | undefined = undefined
 
@@ -157,9 +158,18 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			port: wsPort,
 		})
 
-		this.wsServer.on('connection', (ws) => {
+		this.wsServer.on('connection', (ws, request) => {
 			// A client has connected!
 			this.connectedClients.push(ws)
+
+			const connectionId = this.connectedId++
+
+			let remoteAddress = request.socket.remoteAddress || 'N/A'
+			if (request.socket.remotePort) {
+				remoteAddress += ':' + request.socket.remotePort
+			}
+
+			this.logger.debug(`New connection "${connectionId}" opened from ${remoteAddress}`)
 
 			const onMessage = (raw: RawData) => {
 				let message: ReceiveWSMessageAny | undefined = undefined
@@ -207,6 +217,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 
 				// Remove listeners:
 				ws.off('message', onMessage)
+
+				this.logger.debug(`Connection "${connectionId}" from ${remoteAddress} was closed`)
 			})
 			// Add listeners:
 			ws.on('message', onMessage)
