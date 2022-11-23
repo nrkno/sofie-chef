@@ -35,6 +35,8 @@ export class ConfigHelper extends EventEmitter {
 		if (this._initialized) return
 		this._initialized = true
 
+		fs.mkdir(this.homePath).catch((e) => this.logger.error(e))
+
 		this.setupMonitorConfigFile()
 
 		this.logger.info(`Config file path: "${this.configFilePath}"`)
@@ -114,14 +116,22 @@ export class ConfigHelper extends EventEmitter {
 			}
 		}
 	}
+	/** Returns the path of the folder where we store the config file. */
+	private get homePath(): string {
+		if (this.app.isPackaged) {
+			// Use the users home catalog:
+			return path.join(this.app.getPath('userData'), 'sofie-chef')
+		} else {
+			// When in development-mode, just use the base folder of the repo:
+			return path.join(
+				this.app.getAppPath(), // ./dist
+				'..'
+			)
+		}
+	}
+	/** Returns the path of the config file */
 	private get configFilePath(): string {
-		// The config file is located in the user home catalog:
-
-		let filePath = this.app.isPackaged ? path.dirname(this.app.getPath('userData')) : this.app.getAppPath()
-		filePath = filePath.replace(/dist[\\/]?$/, '')
-
-		const folderPath = path.join(filePath, 'SofieChef')
-		return path.join(folderPath, 'config.json')
+		return path.join(this.homePath, 'config.json')
 	}
 	private async readConfigFile(): Promise<Config | undefined> {
 		if (await fsExists(this.configFilePath)) {

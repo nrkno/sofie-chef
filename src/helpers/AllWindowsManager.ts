@@ -79,7 +79,7 @@ export class AllWindowsManager extends EventEmitter {
 					this.emit('window-has-been-modified')
 				})
 				winHandler.on('status', (status: StatusObject) => {
-					this.logger.info(`Status for ${id}: ${status.statusCode} ${status.message}`)
+					this.logger.info(`Status for "${id}": ${status.statusCode} ${status.message}`)
 					this.emit('status', this.getStatus())
 				})
 				winHandler.on('focus', () => {
