@@ -115,10 +115,13 @@ export class ConfigHelper extends EventEmitter {
 		}
 	}
 	private get configFilePath(): string {
-		// The config file is located beside the executable:
-		let filePath = this.app.isPackaged ? path.dirname(this.app.getPath('exe')) : this.app.getAppPath()
+		// The config file is located in the user home catalog:
+
+		let filePath = this.app.isPackaged ? path.dirname(this.app.getPath('userData')) : this.app.getAppPath()
 		filePath = filePath.replace(/dist[\\/]?$/, '')
-		return path.join(filePath, 'config.json')
+
+		const folderPath = path.join(filePath, 'SofieChef')
+		return path.join(folderPath, 'config.json')
 	}
 	private async readConfigFile(): Promise<Config | undefined> {
 		if (await fsExists(this.configFilePath)) {
