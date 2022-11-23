@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/nrkno/sofie-chef/compare/v0.0.3...v0.0.4) (2022-11-23)
+
+
+### Bug Fixes
+
+* report window status over IPC ([8a840da](https://github.com/nrkno/sofie-chef/commit/8a840da092b2495926740ab1b0750d2ac843be04))
+* use userData / appData folder for config file ([f0ec3d7](https://github.com/nrkno/sofie-chef/commit/f0ec3d7ee710140fc38909345d1d1912566c2b07))
+
 ### [0.0.3](https://github.com/nrkno/sofie-chef/compare/v0.0.2...v0.0.3) (2022-10-21)
 
 ### 0.0.2 (2022-10-21)
