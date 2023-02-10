@@ -2,7 +2,7 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as chokidar from 'chokidar'
 import * as _ from 'underscore'
-import { App } from 'electron'
+import { App, shell, globalShortcut } from 'electron'
 import { EventEmitter } from 'events'
 import { Logger } from '../lib/logging'
 import { fsExists } from '../lib/lib'
@@ -39,6 +39,11 @@ export class ConfigHelper extends EventEmitter {
 
 		this.setupMonitorConfigFile()
 
+		// CTRL+Alt+SHIFT+C opens the config file:
+		globalShortcut.register('CommandOrControl+Alt+Shift+C', () => {
+			this.openFileInDefaultEditor()
+		})
+
 		this.logger.info(`Config file path: "${this.configFilePath}"`)
 	}
 	public addWindow(): void {
@@ -68,6 +73,11 @@ export class ConfigHelper extends EventEmitter {
 			}
 		}
 		this.emit('updated-config', this.config)
+	}
+
+	/** Opens the config file in the OS default editor */
+	public openFileInDefaultEditor(): void {
+		shell.openPath(this.configFilePath).catch((e) => this.logger.error(e))
 	}
 
 	/** Sets up monitoring of config file */

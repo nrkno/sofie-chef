@@ -42,6 +42,9 @@ export class ChefManager {
 		this.windowsHelper.initialize()
 
 		this.configHelper.initialize()
+		this.configHelper.on('error', (e) => {
+			this.logger.error(e)
+		})
 		this.configHelper.on('updated-config', (config: Config) => {
 			this.logger.debug('Updated config:\n' + JSON.stringify(config))
 			this.windowsHelper.triggerUpdateWindows(config)
