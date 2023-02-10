@@ -117,7 +117,8 @@ export class WindowHelper extends EventEmitter {
 
 		this.window.setFullScreen(this.config.fullScreen)
 
-		if (this.config.fullScreen && this.config.onTop) {
+		if (this.config.onTop) {
+			// Note: Some popups are only displayed below if running in fullscreen as well.
 			this.window.setAlwaysOnTop(true, 'screen-saver')
 		} else {
 			this.window.setAlwaysOnTop(false)
