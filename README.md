@@ -19,6 +19,26 @@ Most properties of the `config.json`-file are also automatically updated when mo
 
 See [config.ts](/blob/main/src/lib/config.ts)
 
+## Tips for running in fullscreen
+
+Here are some tips for when you want to display something in fullscreen and want to avoid
+ANY overlays on top of the content (like popups).
+
+### In general
+
+- In the config file, set:
+  ```json
+  {
+  	"fullScreen": true, // Display in fullscreen
+  	"onTop": true // Display on top of other windows (and popups when in fullscreen mode)
+  }
+  ```
+
+### When using Windows
+
+- Put the fullscreen window on a non-main display.
+  If the content is on the primary display, an accidental click on the Windows-key will open the start-menu which will display on top of the output.
+
 # For Developers
 
 ## Getting started
