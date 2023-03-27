@@ -17,7 +17,7 @@ Most properties of the `config.json`-file are also automatically updated when mo
 
 ## Configuration
 
-See [config.ts](/blob/main/src/lib/config.ts)
+See [config.ts](src/lib/config.ts)
 
 ## Tips for running in fullscreen
 
