@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/nrkno/sofie-chef/compare/v0.0.5...v0.0.6) (2023-03-28)
+
+
+### Features
+
+* add global shortcut for toggling devTools ([1934318](https://github.com/nrkno/sofie-chef/commit/1934318a9b30c9ba159ef0c2e4ecdc8eb6580a0a))
+
+
+### Bug Fixes
+
+* add global schortcut to open config file on default OS editor ([6ddc25b](https://github.com/nrkno/sofie-chef/commit/6ddc25b6cef272b275e8cca75723cee6204368b1))
+* allow windows to be onTop even when not in fullscreen ([3714166](https://github.com/nrkno/sofie-chef/commit/37141661b8dbd489bb15fc5a7593a3deed4e52b9))
+
 ### [0.0.5](https://github.com/nrkno/sofie-chef/compare/v0.0.4...v0.0.5) (2022-11-23)
 
 
