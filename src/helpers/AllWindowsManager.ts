@@ -34,6 +34,9 @@ export class AllWindowsManager extends EventEmitter {
 		globalShortcut.register('CommandOrControl+Alt+Shift+F', () => {
 			this.lastFocusedWindow?.toggleFullScreen()
 		})
+		globalShortcut.register('CommandOrControl+Alt+Shift+I', () => {
+			this.lastFocusedWindow?.toggleDevTools()
+		})
 	}
 
 	public getWindow(id: string): WindowHelper | undefined {

@@ -140,6 +140,9 @@ export class WindowHelper extends EventEmitter {
 		this.window.setFullScreen(!this.window.isFullScreen())
 		this.updateSizeAndPosition()
 	}
+	public toggleDevTools(): void {
+		this.window.webContents.toggleDevTools()
+	}
 	/** Play the specified URL in the window */
 	async playURL(url: string | null): Promise<void> {
 		if (this.url !== url) {

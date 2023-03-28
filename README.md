@@ -13,6 +13,7 @@ Most properties of the `config.json`-file are also automatically updated when mo
 ## Keyboard shortcuts
 
 - `CTRL+Alt+SHIFT+F` Toggles fullscreen for the current (or last) selected window
+- `CTRL+Alt+SHIFT+I` Toggles DevTools (console) for the current (or last) selected window
 - `CTRL+Alt+SHIFT+C` Opens the config file in the system default editor
 
 ## Configuration
