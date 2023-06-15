@@ -162,15 +162,9 @@ export class WindowHelper extends EventEmitter {
 
 		try {
 			const url = this.getURL()
-			if (url) {
-				await this.window.loadURL(url, {
-					userAgent: this.userAgent,
-				})
-			} else {
-				await this.window.loadURL('about:blank', {
-					userAgent: this.userAgent,
-				})
-			}
+			await this.window.loadURL(url || 'about:blank', {
+				userAgent: this.userAgent,
+			})
 			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
 			if (defaultColor) {
 				// Set the background color, to avoid flashes when loading:

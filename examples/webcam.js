@@ -1,3 +1,4 @@
+/* eslint-disable */
 const output = document.getElementById('output')
 const params = new URLSearchParams(window.location.search)
 
