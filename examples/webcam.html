@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--
+
+http://localhost:5270/api/playURL/default
+{
+  "url": "file:///LOCAL_PATH/chef/examples/webcam.html"
+}
+{
+  "url": "file:///LOCAL_PATH/chef/examples/webcam.html?input=INDEX&fps=50&height=1080"
+}
+
+-->
+<html lang="en">
+	<head>
+		<title></title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	</head>
+	<style type="text/css">
+		body {
+			color: #fff;
+		}
+		#output {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: #000;
+		}
+		#output > video {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<body>
+		<div id="output"></div>
+		<script src="webcam.js"></script>
+	</body>
+</html>
