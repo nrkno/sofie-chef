@@ -40,6 +40,28 @@ ANY overlays on top of the content (like popups).
 - Put the fullscreen window on a non-main display.
   If the content is on the primary display, an accidental click on the Windows-key will open the start-menu which will display on top of the output.
 
+# API
+
+## Websocket API
+
+See types here for messages over websocket: [src/lib/api.ts](src/lib/api.ts)
+
+## Rest API
+
+The API is exposed by default on http://localhost:5270
+
+_Note: If `apiKey` is set in config.json, all requests must include `?apiKey=API_KEY`_
+
+| URL                          | Parameters                                                                                                                             | Description                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| GET `/api/status`            |                                                                                                                                        | Current status                   |
+| PUT `/api/playURL/:windowId` | <code>Body parameters:<br>/** The URL to load \*/<br>url: string<br>/** Execute javascript in web player \*/<br>jsCode?: string</code> | Display web page                 |
+| PUT `/api/restart/:windowId` |                                                                                                                                        | Reload the web player            |
+| PUT `/api/stop/:windowId`    |                                                                                                                                        | Stop and clear the web player    |
+| PUT `/api/execute/:windowId` | <code>Body parameters:<br>/\*_ Javascript to execute in web player _/<br>jsCode: string</code>                                         | Execute javascript in web player |
+| GET `/api/list`              |                                                                                                                                        | List windows                     |
+| GET `/api`                   |                                                                                                                                        | List API calls                   |
+
 # For Developers
 
 ## Getting started
