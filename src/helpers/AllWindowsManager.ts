@@ -20,7 +20,7 @@ export class AllWindowsManager extends EventEmitter {
 			const browserWindow = BrowserWindow.fromWebContents(event.sender)
 			if (!browserWindow) return
 
-			this.getAllWindows().forEach((w) => w.receiveExternalStatus(browserWindow, payload))
+			this.getAllWindows().forEach((w) => w.window.receiveExternalStatus(browserWindow, payload))
 		})
 	}
 	static GetAllWindowsManager(logger: Logger): AllWindowsManager {
@@ -42,8 +42,8 @@ export class AllWindowsManager extends EventEmitter {
 	public getWindow(id: string): WindowHelper | undefined {
 		return this.windowsHandlers[id]
 	}
-	public getAllWindows(): WindowHelper[] {
-		return Object.values(this.windowsHandlers)
+	public getAllWindows(): { id: string; window: WindowHelper }[] {
+		return Object.entries(this.windowsHandlers).map(([id, window]) => ({ id, window }))
 	}
 	public getStatus(): { [index: string]: StatusObject } {
 		const status: { [index: string]: StatusObject } = {}
@@ -75,7 +75,7 @@ export class AllWindowsManager extends EventEmitter {
 			if (!window) {
 				// Create a new window
 				this.logger.info(`Create new window "${id}", ${JSON.stringify(configWindow)}`)
-				const winHandler = new WindowHelper(this.logger, id, configWindow, `Chef window ${id}`)
+				const winHandler = new WindowHelper(this.logger, id, configWindow, `Chef | ${id}`)
 				this.windowsHandlers[id] = winHandler
 
 				winHandler.on('window-has-been-modified', () => {

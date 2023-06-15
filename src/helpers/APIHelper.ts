@@ -124,6 +124,17 @@ export class APIHelper {
 			ctx.response.status = r.code
 			ctx.body = r.body
 		})
+		router.get('/api/list', async (ctx) => {
+			ctx.response.status = 200
+			const windows = this.windowsHelper.getAllWindows()
+
+			ctx.body = windows.map((w) => ({
+				id: w.id,
+				url: w.window.url,
+				statusCode: w.window.status.statusCode,
+				statusMessage: w.window.status.message,
+			}))
+		})
 
 		router.get('/api', async (ctx) => {
 			ctx.response.status = 200
@@ -259,7 +270,7 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		} else {
 			if (windowId === '$all') {
 				// "$all" is a magic token to restart all windows
-				await Promise.all(this.windowsHelper.getAllWindows().map(async (window) => window.restart()))
+				await Promise.all(this.windowsHelper.getAllWindows().map(async (w) => w.window.restart()))
 			} else {
 				const window = this.windowsHelper.getWindow(windowId)
 				if (!window) return { code: 404, body: `windowId ${windowId} not found` }

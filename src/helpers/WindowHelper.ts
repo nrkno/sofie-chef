@@ -12,7 +12,7 @@ export class WindowHelper extends EventEmitter {
 	private userAgent = 'sofie-chef' // (placeholder, is set properly later)
 
 	/** empty string means a blank page, null means defaultURL */
-	private url: string | null = null
+	private _url: string | null = null
 
 	private _status: StatusObject = {
 		statusCode: StatusCode.ERROR,
@@ -62,12 +62,17 @@ export class WindowHelper extends EventEmitter {
 	public get config(): ConfigWindow {
 		return this._config
 	}
+	public get url(): string | null {
+		return this._url
+	}
+	// public get status(): StatusObject {
+	// 	return this._status
+	// }
 	public async init(): Promise<void> {
 		// Set the user-agent:
 		this.userAgent = this.window.webContents.getUserAgent() + ' sofie-chef'
 
 		await this.updateWindow()
-
 		// Trigger loading default page:
 		// await this.restart()
 		// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
@@ -124,7 +129,7 @@ export class WindowHelper extends EventEmitter {
 			this.window.setAlwaysOnTop(false)
 		}
 
-		if (!this.url && this.config.defaultURL !== oldConfig?.defaultURL) {
+		if (!this._url && this.config.defaultURL !== oldConfig?.defaultURL) {
 			await this.restart()
 		}
 		if (this.config.displayDebug !== oldConfig?.displayDebug) {
@@ -145,8 +150,8 @@ export class WindowHelper extends EventEmitter {
 	}
 	/** Play the specified URL in the window */
 	async playURL(url: string | null): Promise<void> {
-		if (this.url !== url) {
-			this.url = url
+		if (this._url !== url) {
+			this._url = url
 
 			await this.restart()
 		}
@@ -176,7 +181,7 @@ export class WindowHelper extends EventEmitter {
 				if (details.reason !== 'clean-exit') {
 					this.status = {
 						statusCode: StatusCode.ERROR,
-						message: `Renderer process gone "${this.url}": ${details.reason}, ${details.exitCode}, "${event}"`,
+						message: `Renderer process gone "${this._url}": ${details.reason}, ${details.exitCode}, "${event}"`,
 					}
 				}
 			})
@@ -189,7 +194,7 @@ export class WindowHelper extends EventEmitter {
 		} catch (err) {
 			this.status = {
 				statusCode: StatusCode.ERROR,
-				message: `Error when loading "${this.url}": ${err}`,
+				message: `Error when loading "${this._url}": ${err}`,
 			}
 			throw err
 		}
@@ -250,8 +255,8 @@ export class WindowHelper extends EventEmitter {
 		this.emit('window-has-been-modified')
 	}
 	private getURL(): string {
-		if (this.url === null) return this._config.defaultURL
-		return this.url
+		if (this._url === null) return this._config.defaultURL
+		return this._url
 	}
 	private handleConsoleMessage = (
 		_event: Electron.Event,
