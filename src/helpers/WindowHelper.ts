@@ -170,9 +170,13 @@ export class WindowHelper extends EventEmitter {
 				await this.window.loadURL('about:blank', {
 					userAgent: this.userAgent,
 				})
-				// Make the background black:
-				await this.window.webContents.insertCSS('html, body { background-color: #000; }')
 			}
+			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
+			if (defaultColor) {
+				// Set the background color, to avoid flashes when loading:
+				await this.window.webContents.insertCSS(`html, body { background-color: ${defaultColor}; }`)
+			}
+
 			// Hide the cursor:
 			await this.window.webContents.insertCSS('html, body, * { cursor: none !important; }')
 

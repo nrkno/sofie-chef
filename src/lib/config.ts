@@ -37,6 +37,9 @@ export interface ConfigWindow {
 
 	/** The default URL to load on startup */
 	defaultURL: string
+
+	/** The default background color to use. Defaults to black. Set to empty string to disable. */
+	defaultColor: string
 }
 export const DEFAULT_CONFIG: Config = {
 	freeze: false,
@@ -53,6 +56,7 @@ export const DEFAULT_CONFIG: Config = {
 			frameless: false,
 			displayDebug: true,
 			defaultURL: 'https://bouncingdvdlogo.com/',
+			defaultColor: '#000000',
 		},
 	},
 }
