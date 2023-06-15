@@ -35,6 +35,15 @@ http://localhost:5270/api/playURL/default
 	</style>
 	<body>
 		<div id="output"></div>
-		<script src="webcam.js"></script>
+		<script>
+			const params = new URLSearchParams(window.location.search)
+			const input = params.get('input') || 'video.mp4'
+
+			const elVideo = document.createElement('video')
+			elVideo.autoplay = true
+			elVideo.loop = true
+			elVideo.src = input
+			output.appendChild(elVideo)
+		</script>
 	</body>
 </html>
