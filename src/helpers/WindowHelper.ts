@@ -277,7 +277,7 @@ export class WindowHelper extends EventEmitter {
 		await this.window.webContents.executeJavaScript(`
 function setupMonitor() {
 	var overlay = document.createElement('div');
-	overlay.style.cssText = 'display: block;position:fixed;top:0;right: 0;z-index:99999;color: #0f0;font-family: monospace;';
+	overlay.style.cssText = 'display: block;position:fixed;top:0;right: 0;z-index:99999;color: #0f0;font-family: monospace;background: rgba(0,0,0,0.2);padding: 3px;';
 	document.body.appendChild(overlay);
 
 	var lastFrameTime = performance.now();
