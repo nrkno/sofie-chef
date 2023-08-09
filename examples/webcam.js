@@ -51,7 +51,7 @@ async function setup() {
 			}
 			if (params.get('height') !== null) {
 				constraints.video.height = {
-					height: parseInt(params.get('height')),
+					exact: parseInt(params.get('height')),
 				}
 			}
 
