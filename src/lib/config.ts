@@ -1,4 +1,8 @@
-export interface Config {
+export interface ConfigWindowShared {
+	/** The base URL to prepend to relative URLs */
+	baseURL?: string
+}
+export interface Config extends ConfigWindowShared {
 	/** If true, won't update the config file automatically. */
 	freeze: boolean
 	/** Which port to start the API on. */
