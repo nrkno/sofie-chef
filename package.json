@@ -14,7 +14,7 @@
 		"start": "electron ./dist/main.js",
 		"build:binary": "electron-builder",
 		"dev": "yarn && yarn build && concurrently --kill-others \"yarn watch:build\" \"yarn watch:electron\"",
-		"release:release": "standard-version",
+		"release:release": "sofie-version",
 		"release": "yarn release:release"
 	},
 	"repository": "https://github.com/nrkno/sofie-chef",
@@ -41,7 +41,6 @@
 		"electron-builder": "^22.14.13",
 		"jest": "^29.0.3",
 		"nodemon": "^2.0.13",
-		"standard-version": "^9.5.0",
 		"typescript": "^4.8.3"
 	},
 	"dependencies": {
