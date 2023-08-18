@@ -83,7 +83,7 @@ export class APIHelper {
 			// Intercept and authenticate:
 			const requestApiKey: string | undefined =
 				firstInArray(ctx.request.query?.apiKey) || // Querystring parameter
-				(ctx.request.body?.apiKey as string) // Body parameter
+				((ctx.request.body as any)?.apiKey as string) // Body parameter
 
 			if (!apiKey || apiKey === requestApiKey) {
 				return next() // OK
@@ -100,8 +100,9 @@ export class APIHelper {
 			ctx.body = this.status
 		})
 		router.put('/api/playURL/:windowId', async (ctx) => {
-			const url = ctx.request.body?.url as string | undefined // Body parameter
-			const jsCode = ctx.request.body?.jsCode as string | undefined // Body parameter
+			const body = ctx.request.body as Record<string, string> | undefined
+			const url = body?.url // Body parameter
+			const jsCode = body?.jsCode // Body parameter
 
 			const r = await this.apiPlayURL(ctx.params.windowId, url, jsCode)
 			ctx.response.status = r.code
@@ -118,7 +119,8 @@ export class APIHelper {
 			ctx.body = r.body
 		})
 		router.post('/api/execute/:windowId', async (ctx) => {
-			const jsCode = ctx.request.body?.jsCode as string | undefined // Body parameter
+			const body = ctx.request.body as Record<string, string> | undefined
+			const jsCode = body?.jsCode // Body parameter
 
 			const r = await this.apiExecute(ctx.params.windowId, jsCode)
 			ctx.response.status = r.code
