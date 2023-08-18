@@ -1,10 +1,11 @@
 import { BrowserWindow, screen } from 'electron'
 import { EventEmitter } from 'events'
-import { ConfigWindow } from '../lib/config'
+import { ConfigWindow, ConfigWindowShared } from '../lib/config'
 import _ = require('underscore')
 import { Logger } from '../lib/logging'
 import { ReportStatusIpcPayload, StatusCode, StatusObject } from '../lib/api'
 import * as path from 'path'
+import urlJoin = require('url-join')
 
 export class WindowHelper extends EventEmitter {
 	private window: BrowserWindow
@@ -20,7 +21,13 @@ export class WindowHelper extends EventEmitter {
 	}
 	private _contentStatus?: StatusObject
 
-	constructor(private logger: Logger, private id: string, private _config: ConfigWindow, private title: string) {
+	constructor(
+		private logger: Logger,
+		private id: string,
+		private _sharedConfig: ConfigWindowShared,
+		private _config: ConfigWindow,
+		private title: string
+	) {
 		super()
 
 		this.window = new BrowserWindow({
@@ -81,8 +88,9 @@ export class WindowHelper extends EventEmitter {
 	public async close(): Promise<void> {
 		this.window.close()
 	}
-	public async updateConfig(config: ConfigWindow): Promise<void> {
+	public async updateConfig(sharedConfig: ConfigWindowShared, config: ConfigWindow): Promise<void> {
 		const oldConfig = this._config
+		this._sharedConfig = sharedConfig
 		this._config = config
 
 		if (!_.isEqual(oldConfig, config)) {
@@ -129,7 +137,7 @@ export class WindowHelper extends EventEmitter {
 			this.window.setAlwaysOnTop(false)
 		}
 
-		if (!this._url && this.config.defaultURL !== oldConfig?.defaultURL) {
+		if (this.window.webContents.getURL() !== this.getURL()) {
 			await this.restart()
 		}
 		if (this.config.displayDebug !== oldConfig?.displayDebug) {
@@ -253,8 +261,14 @@ export class WindowHelper extends EventEmitter {
 		this.emit('window-has-been-modified')
 	}
 	private getURL(): string {
-		if (this._url === null) return this._config.defaultURL
-		return this._url
+		const windowUrl = this._url ?? this._config.defaultURL
+
+		if (this._sharedConfig.baseURL && !windowUrl.match(/^(?:[a-z+]+:)?\/\//i)) {
+			// URL does not look absolute, add the baseURL
+			return urlJoin(this._sharedConfig.baseURL, windowUrl)
+		} else {
+			return windowUrl
+		}
 	}
 	private handleConsoleMessage = (
 		_event: Electron.Event,
