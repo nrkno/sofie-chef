@@ -18,6 +18,7 @@
 		"release": "yarn release:release"
 	},
 	"repository": "https://github.com/nrkno/sofie-chef",
+	"homepage": "https://github.com/nrkno/sofie-chef#readme",
 	"keywords": [
 		"Electron",
 		"sofie",
