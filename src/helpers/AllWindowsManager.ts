@@ -1,7 +1,7 @@
 import { BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import { EventEmitter } from 'events'
 import { IpcMethods, ReportStatusIpcPayload, StatusObject } from '../lib/api'
-import { Config } from '../lib/config'
+import { Config, ConfigWindow } from '../lib/config'
 import { rateLimitAndDoLater } from '../lib/lib'
 import { Logger } from '../lib/logging'
 
@@ -43,12 +43,12 @@ export class AllWindowsManager extends EventEmitter {
 		return this.windowsHandlers[id]
 	}
 	public getAllWindows(): { id: string; window: WindowHelper }[] {
-		return Object.entries(this.windowsHandlers).map(([id, window]) => ({ id, window }))
+		return Object.entries<WindowHelper>(this.windowsHandlers).map(([id, window]) => ({ id, window }))
 	}
 	public getStatus(): { [index: string]: StatusObject } {
 		const status: { [index: string]: StatusObject } = {}
 
-		for (const [id, window] of Object.entries(this.windowsHandlers)) {
+		for (const [id, window] of Object.entries<WindowHelper>(this.windowsHandlers)) {
 			status[id] = window.status
 		}
 		return status
@@ -67,7 +67,7 @@ export class AllWindowsManager extends EventEmitter {
 			removeWindowIds.add(id)
 		}
 
-		for (const [id, configWindow] of Object.entries(config.windows)) {
+		for (const [id, configWindow] of Object.entries<ConfigWindow>(config.windows)) {
 			removeWindowIds.delete(id)
 
 			const window = this.windowsHandlers[id]
