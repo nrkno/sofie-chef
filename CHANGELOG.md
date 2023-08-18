@@ -1,6 +1,19 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
+
+## [0.1.0](https://github.com/nrkno/sofie-chef/compare/v0.0.6...v0.1.0) (Fri Aug 18 2023)
+
+
+### Features
+
+* add `baseURL` config field SOFIE-2545 (#5) [7f19c18](https://github.com/nrkno/sofie-chef/commit/7f19c18f3a81b98936466e4327c2a19bbe3949db)
+
+### Fixes
+
+* make debug info readable on a light background [4b6add8](https://github.com/nrkno/sofie-chef/commit/4b6add83da172032c71459b802a92763bc4afc82)
+* add config.defaultColor, and apply while loading pages, to avoid white flashes [1881bb1](https://github.com/nrkno/sofie-chef/commit/1881bb102c4f1d7d921f7d0789c9d23d94d01c36)
+* add api endpoint for list all windows [157b6fa](https://github.com/nrkno/sofie-chef/commit/157b6fa094ed8234882fc4b6ba10eef95fed83fa)
 
 ### [0.0.6](https://github.com/nrkno/sofie-chef/compare/v0.0.5...v0.0.6) (2023-03-28)
 
