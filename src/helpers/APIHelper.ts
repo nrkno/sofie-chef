@@ -12,6 +12,7 @@ import {
 	SendWSMessageType,
 	StatusCode,
 	SendWSMessageStatus,
+	APIResponseList,
 } from '../lib/api'
 import { rateLimitAndDoLater } from '../lib/lib'
 import { Config } from '../lib/config'
@@ -313,6 +314,20 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return { code: 200, body: 'ok' }
 		}
 	}
+	private async apiList(): Promise<APIResponseList> {
+		const windows = this.windowsHelper.getAllWindows()
+
+		return {
+			code: 200,
+			body: 'list',
+			list: windows.map((w) => ({
+				id: w.id,
+				url: w.window.url,
+				statusCode: w.window.status.statusCode,
+				statusMessage: w.window.status.message,
+			})),
+		}
+	}
 
 	private async handleWebSocketMessage(message: ReceiveWSMessageAny): Promise<APIResponse> {
 		if (!this.config) throw new Error('this.config not set!')
@@ -335,6 +350,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return this.apiStop(message.windowId)
 		} else if (message.type === ReceiveWSMessageType.EXECUTE) {
 			return this.apiExecute(message.windowId, message.jsCode)
+		} else if (message.type === ReceiveWSMessageType.LIST) {
+			return this.apiList()
 		} else {
 			return this.unknownCommandReply()
 		}
