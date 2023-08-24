@@ -204,14 +204,14 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 									type: SendWSMessageType.REPLY,
 									replyTo: msgId,
 									error: undefined,
-									result: undefined,
+									result: response,
 								})
 							} else {
 								this.sendMessage(ws, {
 									type: SendWSMessageType.REPLY,
 									replyTo: msgId,
 									error: `[${response.code}] ${response.body}`,
-									result: undefined,
+									result: response,
 								})
 							}
 						})
@@ -249,6 +249,9 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		this.logger.info(`Websocket server listening on port ${wsPort}`)
 	}
 
+	private async unknownCommandReply(): Promise<APIResponse> {
+		return { code: 400, body: 'Unknown command' }
+	}
 	private async apiPlayURL(
 		windowId: unknown | string,
 		url: unknown | string,
@@ -333,8 +336,7 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		} else if (message.type === ReceiveWSMessageType.EXECUTE) {
 			return this.apiExecute(message.windowId, message.jsCode)
 		} else {
-			// @ts-expect-error never
-			throw new Error(`WS Error: Unknown command received: "${message.type}"`)
+			return this.unknownCommandReply()
 		}
 	}
 	private sendMessage(ws: WebSocket, msg: SendWSMessageAny) {
