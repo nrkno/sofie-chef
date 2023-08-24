@@ -63,6 +63,8 @@ export class APIHelper {
 		const httpPort = this.config.apiPort
 		const apiKey = this.config.apiKey
 
+		this.logger.info(`Starting HTTP server on port ${httpPort}...`)
+
 		this.httpServer = new Koa()
 		const router = new Router()
 
@@ -166,6 +168,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		if (!this.config.apiPort) return
 
 		const wsPort = this.config.apiPort + 1
+
+		this.logger.info(`Starting websocket server on port ${wsPort}...`)
 
 		this.wsServer = new WebSocketServer({
 			port: wsPort,
@@ -317,6 +321,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 				body: 'apiKey missing or is invalid.',
 			}
 		}
+
+		this.logger.debug(`Received message: ${JSON.stringify(message)}`)
 
 		if (message.type === ReceiveWSMessageType.PLAYURL) {
 			return this.apiPlayURL(message.windowId, message.url, message.jsCode)
