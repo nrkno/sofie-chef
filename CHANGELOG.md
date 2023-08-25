@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.1.1](https://github.com/nrkno/sofie-chef/compare/v0.1.0...v0.1.1) (Fri Aug 25 2023)
+
+
+### Fixes
+
+* stricter types in api [4f066da](https://github.com/nrkno/sofie-chef/commit/4f066dabf92d7c6b68d132047f8c7fd836f0ad60)
+* add LIST ws command [3723297](https://github.com/nrkno/sofie-chef/commit/3723297695bc513eecc3be68649dcd8ceebbae30)
+* don't throw on bad unknown ws-command [c875a93](https://github.com/nrkno/sofie-chef/commit/c875a93baef775e6232f51bdbd95622045b28f27)
+
 ## [0.1.0](https://github.com/nrkno/sofie-chef/compare/v0.0.6...v0.1.0) (Fri Aug 18 2023)
 
 
