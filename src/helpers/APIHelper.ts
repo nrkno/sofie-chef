@@ -5,13 +5,14 @@ import { AllWindowsManager } from './AllWindowsManager'
 import { Logger } from '../lib/logging'
 import { WebSocketServer, WebSocket, RawData } from 'ws'
 import {
-	APIResponse,
 	ReceiveWSMessageAny,
 	ReceiveWSMessageType,
 	SendWSMessageAny,
 	SendWSMessageType,
 	StatusCode,
 	SendWSMessageStatus,
+	APIResponseBase,
+	ReceiveWSMessageResponse,
 } from '../lib/api'
 import { rateLimitAndDoLater } from '../lib/lib'
 import { Config } from '../lib/config'
@@ -62,6 +63,8 @@ export class APIHelper {
 
 		const httpPort = this.config.apiPort
 		const apiKey = this.config.apiKey
+
+		this.logger.info(`Starting HTTP server on port ${httpPort}...`)
 
 		this.httpServer = new Koa()
 		const router = new Router()
@@ -127,15 +130,9 @@ export class APIHelper {
 			ctx.body = r.body
 		})
 		router.get('/api/list', async (ctx) => {
-			ctx.response.status = 200
-			const windows = this.windowsHelper.getAllWindows()
-
-			ctx.body = windows.map((w) => ({
-				id: w.id,
-				url: w.window.url,
-				statusCode: w.window.status.statusCode,
-				statusMessage: w.window.status.message,
-			}))
+			const r = await this.apiList()
+			ctx.response.status = r.code
+			ctx.body = r.body
 		})
 
 		router.get('/api', async (ctx) => {
@@ -166,6 +163,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		if (!this.config.apiPort) return
 
 		const wsPort = this.config.apiPort + 1
+
+		this.logger.info(`Starting websocket server on port ${wsPort}...`)
 
 		this.wsServer = new WebSocketServer({
 			port: wsPort,
@@ -200,14 +199,14 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 									type: SendWSMessageType.REPLY,
 									replyTo: msgId,
 									error: undefined,
-									result: undefined,
+									result: response,
 								})
 							} else {
 								this.sendMessage(ws, {
 									type: SendWSMessageType.REPLY,
 									replyTo: msgId,
 									error: `[${response.code}] ${response.body}`,
-									result: undefined,
+									result: response,
 								})
 							}
 						})
@@ -245,11 +244,14 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 		this.logger.info(`Websocket server listening on port ${wsPort}`)
 	}
 
+	private async unknownCommandReply(): Promise<APIResponseBase> {
+		return { code: 400, body: 'Unknown command' }
+	}
 	private async apiPlayURL(
 		windowId: unknown | string,
 		url: unknown | string,
 		jsCode: unknown | string | undefined
-	): Promise<APIResponse> {
+	): Promise<ReceiveWSMessageResponse<ReceiveWSMessageType.PLAYURL>> {
 		if (typeof windowId !== 'string') {
 			return { code: 400, body: 'windowId must be a string' }
 		} else if (typeof url !== 'string') {
@@ -266,7 +268,9 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return { code: 200, body: 'ok' }
 		}
 	}
-	private async apiRestart(windowId: unknown | string): Promise<APIResponse> {
+	private async apiRestart(
+		windowId: unknown | string
+	): Promise<ReceiveWSMessageResponse<ReceiveWSMessageType.RESTART>> {
 		if (typeof windowId !== 'string') {
 			return { code: 400, body: 'windowId must be a string' }
 		} else {
@@ -282,7 +286,7 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return { code: 200, body: 'ok' }
 		}
 	}
-	private async apiStop(windowId: unknown | string): Promise<APIResponse> {
+	private async apiStop(windowId: unknown | string): Promise<ReceiveWSMessageResponse<ReceiveWSMessageType.STOP>> {
 		if (typeof windowId !== 'string') {
 			return { code: 400, body: 'windowId must be a string' }
 		} else {
@@ -293,7 +297,10 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return { code: 200, body: 'ok' }
 		}
 	}
-	private async apiExecute(windowId: unknown | string, jsCode: unknown | string): Promise<APIResponse> {
+	private async apiExecute(
+		windowId: unknown | string,
+		jsCode: unknown | string
+	): Promise<ReceiveWSMessageResponse<ReceiveWSMessageType.EXECUTE>> {
 		if (typeof windowId !== 'string') {
 			return { code: 400, body: 'windowId must be a string' }
 		} else if (typeof jsCode !== 'string') {
@@ -306,8 +313,23 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return { code: 200, body: 'ok' }
 		}
 	}
+	private async apiList(): Promise<ReceiveWSMessageResponse<ReceiveWSMessageType.LIST>> {
+		const windows = this.windowsHelper.getAllWindows()
 
-	private async handleWebSocketMessage(message: ReceiveWSMessageAny): Promise<APIResponse> {
+		return {
+			code: 200,
+			body: windows.map((w) => ({
+				id: w.id,
+				url: w.window.url,
+				statusCode: w.window.status.statusCode,
+				statusMessage: w.window.status.message,
+			})),
+		}
+	}
+
+	private async handleWebSocketMessage<M extends ReceiveWSMessageAny>(
+		message: ReceiveWSMessageAny
+	): Promise<ReceiveWSMessageResponse<M['type']>> {
 		if (!this.config) throw new Error('this.config not set!')
 
 		if (this.config.apiKey && this.config.apiKey !== message.apiKey) {
@@ -318,6 +340,8 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			}
 		}
 
+		this.logger.debug(`Received message: ${JSON.stringify(message)}`)
+
 		if (message.type === ReceiveWSMessageType.PLAYURL) {
 			return this.apiPlayURL(message.windowId, message.url, message.jsCode)
 		} else if (message.type === ReceiveWSMessageType.RESTART) {
@@ -326,9 +350,10 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			return this.apiStop(message.windowId)
 		} else if (message.type === ReceiveWSMessageType.EXECUTE) {
 			return this.apiExecute(message.windowId, message.jsCode)
+		} else if (message.type === ReceiveWSMessageType.LIST) {
+			return this.apiList()
 		} else {
-			// @ts-expect-error never
-			throw new Error(`WS Error: Unknown command received: "${message.type}"`)
+			return this.unknownCommandReply()
 		}
 	}
 	private sendMessage(ws: WebSocket, msg: SendWSMessageAny) {

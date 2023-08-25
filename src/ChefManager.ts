@@ -39,6 +39,8 @@ export class ChefManager {
 	}
 
 	public onAppReady(): void {
+		this.logger.info('Initializing...')
+
 		this.windowsHelper.initialize()
 
 		this.configHelper.initialize()
