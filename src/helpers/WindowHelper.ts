@@ -143,8 +143,8 @@ export class WindowHelper extends EventEmitter {
 			this.window.setAlwaysOnTop(false)
 		}
 
-		if (this.window.webContents.getURL() !== this.getURL()) {
-			await this.restart()
+		if (this.config.zoomFactor !== oldConfig?.zoomFactor) {
+			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
 		}
 		if (
 			this.window.webContents.getURL() !== this.getURL() ||
@@ -202,6 +202,7 @@ export class WindowHelper extends EventEmitter {
 					}
 				}
 			})
+			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
 
 			await this.listenToContentStatuses()
 

@@ -50,7 +50,11 @@ export interface ConfigWindow {
 
 	/** Hide any scrollbars for the displayed content. Defaults to false */
 	hideScrollbar: boolean
+
+	/** Zoom factor of the content. Default is 100 (%) */
+	zoomFactor?: number
 }
+
 export const DEFAULT_CONFIG: Config = {
 	freeze: false,
 	apiPort: 5270,
@@ -69,6 +73,7 @@ export const DEFAULT_CONFIG: Config = {
 			defaultColor: '#000000',
 			hideCursor: true,
 			hideScrollbar: false,
+			zoomFactor: 100,
 		},
 	},
 }
