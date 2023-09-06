@@ -21,6 +21,12 @@ export class WindowHelper extends EventEmitter {
 	}
 	private _contentStatus?: StatusObject
 
+	/**
+	 * A value that changes whenever the content is changed.
+	 * Used to abort asynchronous operations if the content has changed.
+	 */
+	private updateHash = 0
+
 	constructor(
 		private logger: Logger,
 		private id: string,
@@ -140,7 +146,12 @@ export class WindowHelper extends EventEmitter {
 		if (this.window.webContents.getURL() !== this.getURL()) {
 			await this.restart()
 		}
-		if (this.config.displayDebug !== oldConfig?.displayDebug) {
+		if (
+			this.window.webContents.getURL() !== this.getURL() ||
+			this.config.displayDebug !== oldConfig?.displayDebug ||
+			this.config.hideCursor !== oldConfig?.hideCursor ||
+			this.config.hideScrollbar !== oldConfig?.hideScrollbar
+		) {
 			await this.restart()
 		}
 
@@ -167,20 +178,20 @@ export class WindowHelper extends EventEmitter {
 	/** Restarts (reloads) the window */
 	async restart(): Promise<void> {
 		delete this._contentStatus
+		const updateHash = ++this.updateHash
 
 		try {
 			const url = this.getURL()
 			await this.window.loadURL(url || 'about:blank', {
 				userAgent: this.userAgent,
 			})
+			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
+
 			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
 			if (defaultColor) {
-				// Set the background color, to avoid flashes when loading:
+				// Set the background color, to avoid white flashes when loading:
 				await this.window.webContents.insertCSS(`html, body { background-color: ${defaultColor}; }`)
 			}
-
-			// Hide the cursor:
-			await this.window.webContents.insertCSS('html, body, * { cursor: none !important; }')
 
 			this.window.setTitle(this.title)
 			this.window.webContents.on('render-process-gone', (event, details) => {
@@ -197,6 +208,10 @@ export class WindowHelper extends EventEmitter {
 			if (this.config.displayDebug) {
 				await this.displayDebugOverlay()
 			}
+
+			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
+
+			await this.injectUpdateCSS()
 		} catch (err) {
 			this.status = {
 				statusCode: StatusCode.ERROR,
@@ -322,5 +337,45 @@ function setupMonitor() {
 	})
 }
 setupMonitor();`)
+	}
+	private async injectUpdateCSS() {
+		if (this.config.hideCursor ?? true) {
+			// Hide cursor:
+			// This should hide the cursor for most elements that sets their own cursor
+			//  (though it's not perfect if the content sets the cursor for an element AND uses "!important")
+			await this.window.webContents.insertCSS('html, body, * { cursor: none !important; }')
+
+			// Disable pointer events:
+			// This should disable any hover / click events.
+			await this.window.webContents.insertCSS('html, body, * { pointer-events: none !important; }')
+		}
+
+		if (this._config.hideScrollbar) {
+			await this.window.webContents.insertCSS('html, body { overflow: hidden !important; }')
+		}
+
+		// Also update the CSS every frame, to override anything that the content might try:
+		await this.window.webContents.executeJavaScript(`
+function setupUpdateCSS() {
+	var body = document.getElementsByTagName('body')[0]
+	var html = document.getElementsByTagName('html')[0]
+	var hideCursor = ${this._config.hideCursor ?? true}
+	var hideScrollbar = ${this._config.hideScrollbar ?? false}
+
+	function updateCSS () {
+		if (hideCursor) {
+			if (body.style.cursor !== 'none') body.style.setProperty('cursor', 'none', 'important')
+		}
+		if (hideScrollbar) {
+			if (body.style.overflow !== 'hidden') body.style.setProperty('overflow', 'hidden', 'important')
+		}
+
+		requestAnimationFrame(updateCSS);
+	}
+	requestAnimationFrame(() => {
+		requestAnimationFrame(updateCSS);
+	})
+}
+setupUpdateCSS();`)
 	}
 }
