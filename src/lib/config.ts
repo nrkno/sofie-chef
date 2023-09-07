@@ -44,7 +44,17 @@ export interface ConfigWindow {
 
 	/** The default background color to use. Defaults to black. Set to empty string to disable. */
 	defaultColor: string
+
+	/** Hide cursor on top of window content. Defaults to true */
+	hideCursor: boolean
+
+	/** Hide any scrollbars for the displayed content. Defaults to false */
+	hideScrollbar: boolean
+
+	/** Zoom factor of the content. Default is 100 (%) */
+	zoomFactor?: number
 }
+
 export const DEFAULT_CONFIG: Config = {
 	freeze: false,
 	apiPort: 5270,
@@ -61,6 +71,9 @@ export const DEFAULT_CONFIG: Config = {
 			displayDebug: true,
 			defaultURL: 'https://bouncingdvdlogo.com/',
 			defaultColor: '#000000',
+			hideCursor: true,
+			hideScrollbar: false,
+			zoomFactor: 100,
 		},
 	},
 }
