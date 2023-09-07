@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.2.0](https://github.com/nrkno/sofie-chef/compare/v0.0.5...v0.2.0) (Thu Sep 07 2023)
+
+
+### Features
+
+* Add option for zoomFactor [0787b01](https://github.com/nrkno/sofie-chef/commit/0787b019938619d5dc237a353998494df401f4ca)
+* add option to hide scrollbar. Also changes how injected CSS is done, to better guard against the web content clearing our CSS [9f7ce5e](https://github.com/nrkno/sofie-chef/commit/9f7ce5ecffd3ec5d5059a253e6d39ae49acc4c37)
+* add `baseURL` config field SOFIE-2545 (#5) [7f19c18](https://github.com/nrkno/sofie-chef/commit/7f19c18f3a81b98936466e4327c2a19bbe3949db)
+* add global shortcut for toggling devTools [1934318](https://github.com/nrkno/sofie-chef/commit/1934318a9b30c9ba159ef0c2e4ecdc8eb6580a0a)
+
+### Fixes
+
+* stricter types in api [4f066da](https://github.com/nrkno/sofie-chef/commit/4f066dabf92d7c6b68d132047f8c7fd836f0ad60)
+* add LIST ws command [3723297](https://github.com/nrkno/sofie-chef/commit/3723297695bc513eecc3be68649dcd8ceebbae30)
+* don't throw on bad unknown ws-command [c875a93](https://github.com/nrkno/sofie-chef/commit/c875a93baef775e6232f51bdbd95622045b28f27)
+* make debug info readable on a light background [4b6add8](https://github.com/nrkno/sofie-chef/commit/4b6add83da172032c71459b802a92763bc4afc82)
+* add config.defaultColor, and apply while loading pages, to avoid white flashes [1881bb1](https://github.com/nrkno/sofie-chef/commit/1881bb102c4f1d7d921f7d0789c9d23d94d01c36)
+* add api endpoint for list all windows [157b6fa](https://github.com/nrkno/sofie-chef/commit/157b6fa094ed8234882fc4b6ba10eef95fed83fa)
+* allow windows to be onTop even when not in fullscreen [3714166](https://github.com/nrkno/sofie-chef/commit/37141661b8dbd489bb15fc5a7593a3deed4e52b9)
+* add global schortcut to open config file on default OS editor [6ddc25b](https://github.com/nrkno/sofie-chef/commit/6ddc25b6cef272b275e8cca75723cee6204368b1)
+
 ## [0.1.1](https://github.com/nrkno/sofie-chef/compare/v0.1.0...v0.1.1) (Fri Aug 25 2023)
 
 
