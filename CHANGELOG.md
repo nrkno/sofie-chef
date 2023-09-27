@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.0](https://github.com/nrkno/sofie-chef/compare/v0.2.0...v0.3.0) (Wed Sep 27 2023)
+
+
+### Features
+
+* update electron and electron-builder [078c91b](https://github.com/nrkno/sofie-chef/commit/078c91b88bca64c4794642d011e60c1c1e7d0eaf)
+
 ## [0.2.0](https://github.com/nrkno/sofie-chef/compare/v0.0.5...v0.2.0) (Thu Sep 07 2023)
 
 
