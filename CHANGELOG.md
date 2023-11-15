@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.1](https://github.com/nrkno/sofie-chef/compare/v0.3.0...v0.3.1) (Wed Nov 15 2023)
+
+
+### Fixes
+
+* add `actualURL` property to GET /api/list [bc1019e](https://github.com/nrkno/sofie-chef/commit/bc1019ecb39fe9ee7f19cd930409d8775b558aed)
+
 ## [0.3.0](https://github.com/nrkno/sofie-chef/compare/v0.2.0...v0.3.0) (Wed Sep 27 2023)
 
 
