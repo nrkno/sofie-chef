@@ -106,3 +106,12 @@ When enabled via the `apiPort`-property in the `config.json` file, Sofie Chef ex
 The HTTP REST API is exposed on the port `apiPort`. A list of methods can be found at [localhost:apiPort/api](http://localhost:5270/api).
 
 The Websockets API is exposed on the port `apiPort+1`. A description of the data-interchange can be found here: [api.ts](/blob/main/src/lib/api.ts)
+
+# For Maintainers
+
+## Make a new release
+
+1. `yarn release`
+2. Push the branch (and tag!) to GitHub
+3. Wait for the [Github Action](https://github.com/nrkno/sofie-chef/actions/workflows/create-release.yaml) to finish building the binaries.
+4. Go to [Releases](https://github.com/nrkno/sofie-chef/releases) and publish the release draft.
