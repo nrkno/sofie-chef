@@ -139,6 +139,7 @@ export class APIHelper {
 			ctx.response.status = 200
 			ctx.body = `
 <a href="/api/status?apiKey=${this.config?.apiKey}">GET /api/status</a><br>
+<a href="/api/list?apiKey=${this.config?.apiKey}">GET /api/list</a><br>
 POST /api/playURL/:windowId body: {"url": "", "jsCode": "" }<br>
 POST /api/restart/:windowId<br>
 POST /api/stop/:windowId<br>
@@ -321,6 +322,7 @@ POST /api/execute/:windowId body: {"jsCode": "" }<br>
 			body: windows.map((w) => ({
 				id: w.id,
 				url: w.window.url,
+				actualUrl: w.window.getURL(),
 				statusCode: w.window.status.statusCode,
 				statusMessage: w.window.status.message,
 			})),

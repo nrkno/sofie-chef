@@ -276,7 +276,7 @@ export class WindowHelper extends EventEmitter {
 
 		this.emit('window-has-been-modified')
 	}
-	private getURL(): string {
+	public getURL(): string {
 		const windowUrl = this._url ?? this._config.defaultURL
 
 		if (this._sharedConfig.baseURL && !windowUrl.match(/^(?:[a-z+]+:)?\/\//i)) {
