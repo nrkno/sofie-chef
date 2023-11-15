@@ -71,6 +71,7 @@ export interface APIResponseList extends APIResponseBase {
 	body: {
 		id: string
 		url: string | null
+		actualUrl: string
 		statusCode: string
 		statusMessage: string
 	}[]
