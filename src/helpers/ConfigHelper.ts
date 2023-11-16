@@ -2,7 +2,7 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as chokidar from 'chokidar'
 import * as _ from 'underscore'
-import { App, shell, globalShortcut } from 'electron'
+import { App, shell } from 'electron'
 import { EventEmitter } from 'events'
 import { Logger } from '../lib/logging'
 import { fsExists } from '../lib/lib'
@@ -39,11 +39,6 @@ export class ConfigHelper extends EventEmitter {
 
 		this.setupMonitorConfigFile()
 
-		// CTRL+Alt+SHIFT+C opens the config file:
-		globalShortcut.register('CommandOrControl+Alt+Shift+C', () => {
-			this.openFileInDefaultEditor()
-		})
-
 		this.logger.info(`Config file path: "${this.configFilePath}"`)
 	}
 	public addWindow(): void {
@@ -51,11 +46,18 @@ export class ConfigHelper extends EventEmitter {
 			let nextWindowId = ''
 			for (let i = 0; i < 999; i++) {
 				nextWindowId = 'window_' + i
-				if (!this.config?.windows[nextWindowId]) {
+				if (!this.config.windows[nextWindowId]) {
 					break
 				}
 			}
 			this.config.windows[nextWindowId] = DEFAULT_CONFIG.windows.default
+			this.onModifiedConfig(true)
+		}
+	}
+	public removeWindow(id: string): void {
+		if (this.config) {
+			delete this.config.windows[id]
+
 			this.onModifiedConfig(true)
 		}
 	}

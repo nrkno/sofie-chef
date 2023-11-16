@@ -1,4 +1,4 @@
-import { BrowserWindow, globalShortcut, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import { EventEmitter } from 'events'
 import { IpcMethods, ReportStatusIpcPayload, StatusObject } from '../lib/api'
 import { Config, ConfigWindow } from '../lib/config'
@@ -10,7 +10,7 @@ import { WindowHelper } from './WindowHelper'
 /** The AllWindowsManager is responsible for spawning the various windows */
 export class AllWindowsManager extends EventEmitter {
 	private windowsHandlers: { [id: string]: WindowHelper } = {}
-	private lastFocusedWindow: WindowHelper | undefined | undefined
+	private lastFocusedWindow: WindowHelper | undefined
 
 	private static _singletonInstance: AllWindowsManager
 	private constructor(private logger: Logger) {
@@ -30,13 +30,7 @@ export class AllWindowsManager extends EventEmitter {
 	}
 
 	public initialize(): void {
-		// CTRL+Alt+SHIFT+F makes a window fullscreen:
-		globalShortcut.register('CommandOrControl+Alt+Shift+F', () => {
-			this.lastFocusedWindow?.toggleFullScreen()
-		})
-		globalShortcut.register('CommandOrControl+Alt+Shift+I', () => {
-			this.lastFocusedWindow?.toggleDevTools()
-		})
+		// nothing
 	}
 
 	public getWindow(id: string): WindowHelper | undefined {
@@ -44,6 +38,9 @@ export class AllWindowsManager extends EventEmitter {
 	}
 	public getAllWindows(): { id: string; window: WindowHelper }[] {
 		return Object.entries<WindowHelper>(this.windowsHandlers).map(([id, window]) => ({ id, window }))
+	}
+	public getLastFocusedWindow(): WindowHelper | undefined {
+		return this.lastFocusedWindow
 	}
 	public getStatus(): { [index: string]: StatusObject } {
 		const status: { [index: string]: StatusObject } = {}

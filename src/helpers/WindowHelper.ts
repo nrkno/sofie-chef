@@ -29,7 +29,7 @@ export class WindowHelper extends EventEmitter {
 
 	constructor(
 		private logger: Logger,
-		private id: string,
+		public readonly id: string,
 		private _sharedConfig: ConfigWindowShared,
 		private _config: ConfigWindow,
 		private title: string
