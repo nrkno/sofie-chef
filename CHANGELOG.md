@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.2](https://github.com/nrkno/sofie-chef/compare/v0.3.1...v0.3.2) (Fri Nov 17 2023)
+
+
+### Fixes
+
+* add cors: "origin: * " to http API [42e5208](https://github.com/nrkno/sofie-chef/commit/42e5208988e476f513024d195274df7f78de098e)
+* add shortcuts for adding and removing windows. [445b17e](https://github.com/nrkno/sofie-chef/commit/445b17e8ab0eb31fca706c85f86ceeb0dd9d84b6)
+* add app icon [1add607](https://github.com/nrkno/sofie-chef/commit/1add6073a6abbc3431451d62322af7b908a6b2f9)
+
 ## [0.3.1](https://github.com/nrkno/sofie-chef/compare/v0.3.0...v0.3.1) (Wed Nov 15 2023)
 
 
