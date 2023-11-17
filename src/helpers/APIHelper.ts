@@ -1,4 +1,5 @@
 import * as Koa from 'koa'
+import * as cors from '@koa/cors'
 import * as Router from 'koa-router'
 import * as bodyParser from 'koa-bodyparser'
 import { AllWindowsManager } from './AllWindowsManager'
@@ -70,6 +71,12 @@ export class APIHelper {
 		const router = new Router()
 
 		this.httpServer.use(bodyParser())
+
+		this.httpServer.use(
+			cors({
+				origin: '*', // TODO: cors
+			})
+		)
 
 		this.httpServer.on('error', (err) => {
 			const errString = `${err}`
