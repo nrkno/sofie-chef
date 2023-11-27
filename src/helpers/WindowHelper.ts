@@ -52,25 +52,38 @@ export class WindowHelper extends EventEmitter {
 		this.window.removeMenu()
 
 		this.window.on('resized', () => {
+			this.logger.info(`Window "${this.id}": resized`)
 			this.updateSizeAndPosition()
 		})
 		this.window.on('moved', () => {
+			this.logger.info(`Window "${this.id}": moved`)
 			this.updateSizeAndPosition()
 		})
 		this.window.on('maximize', () => {
+			this.logger.info(`Window "${this.id}": maximized`)
 			this.updateSizeAndPosition()
 		})
 		this.window.on('unmaximize', () => {
+			this.logger.info(`Window "${this.id}": unmaximized`)
 			this.updateSizeAndPosition()
 		})
 		this.window.on('focus', () => {
 			this.emit('focus')
 		})
 		this.window.on('close', () => {
+			this.logger.info(`Window "${this.id}": closed`)
 			this.emit('closed')
 		})
+		this.window.on('unresponsive', () => {
+			// Emitted when the web page becomes unresponsive.
+			this.logger.warn(`Window "${this.id}": unresponsive`)
+		})
+		this.window.on('responsive', () => {
+			// Emitted when the unresponsive web page becomes responsive again.
+			this.logger.warn(`Window "${this.id}": responsive`)
+		})
 
-		this.logger.debug('Creating new window')
+		this.logger.info(`Creating new window "${this.id}"`)
 	}
 	public get config(): ConfigWindow {
 		return this._config
@@ -92,6 +105,7 @@ export class WindowHelper extends EventEmitter {
 		// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
 	}
 	public async close(): Promise<void> {
+		this.logger.info(`Closing window "${this.id}"`)
 		this.window.close()
 	}
 	public async updateConfig(sharedConfig: ConfigWindowShared, config: ConfigWindow): Promise<void> {
@@ -181,12 +195,15 @@ export class WindowHelper extends EventEmitter {
 		const updateHash = ++this.updateHash
 
 		try {
-			const url = this.getURL()
-			await this.window.loadURL(url || 'about:blank', {
+			const url = this.getURL() || 'about:blank'
+
+			this.logger.info(`Window "${this.id}": Load url "${url}"`)
+			await this.window.loadURL(url, {
 				userAgent: this.userAgent,
 			})
 			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
 
+			this.logger.info(`Window "${this.id}": Loaded url "${url}"`)
 			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
 			if (defaultColor) {
 				// Set the background color, to avoid white flashes when loading:
