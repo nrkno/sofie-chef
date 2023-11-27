@@ -1,10 +1,16 @@
 # Sofie Chef
 
-This is a small Electron application which is used to display a number of web pages in fullscreen.
+This is a small Electron application, used to display one or more web pages in fullscreen-, borderless- or usual windows.
+
+# Installation
+
+Windows & Linux: Download and install the latest release from [Releases](https://github.com/nrkno/sofie-chef/releases).
 
 # Usage
 
-When the application first starts, a `config.json`-file is created in the same folder as the executable.
+When the application first starts, a `config.json`-file is created in the users home catalog (on windows, that's C:\Users\MY_USER\AppData\Roaming\sofie-chef\sofie-chef\config.json).
+
+To open the `config.json`-file, click `CTRL+Alt+SHIFT+C`.
 
 When the `config.json`-file is edited, the application applies the changes instantly.
 
