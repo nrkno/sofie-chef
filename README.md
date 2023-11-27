@@ -1,6 +1,13 @@
 # Sofie Chef
 
-This is a small Electron application, used to display one or more web pages in fullscreen-, borderless- or usual windows.
+This is the _Chef_ application of the [**Sofie** TV Automation System](https://github.com/nrkno/Sofie-TV-automation/).
+It is a small Electron app, used to display web pages in fullscreen-, borderless- or usual windows.
+
+The intended use to display HTML graphics, video and camera inputs with low latency directly out to a TV studio screen.
+
+Read our [Contribution Guidelines](CONTRIBUTING.md) and [Sofie System documentation](https://nrkno.github.io/sofie-core/).
+
+---
 
 # Installation
 
@@ -16,7 +23,7 @@ When the `config.json`-file is edited, the application applies the changes insta
 
 Most properties of the `config.json`-file are also automatically updated when moving or resizing the windows.
 
-## Keyboard shortcuts
+## Keyboard Shortcuts
 
 - `CTRL+Alt+SHIFT+F` Toggles fullscreen for the current (or last) selected window
 - `CTRL+Alt+SHIFT+I` Toggles DevTools (console) for the current (or last) selected window
@@ -28,12 +35,12 @@ Most properties of the `config.json`-file are also automatically updated when mo
 
 See [config.ts](src/lib/config.ts)
 
-## Tips for running in fullscreen
+## Tips for Running in Fullscreen Mode
 
 Here are some tips for when you want to display something in fullscreen and want to avoid
 ANY overlays on top of the content (like popups).
 
-### In general
+### General Tips
 
 - In the config file, set:
   ```json
@@ -43,10 +50,10 @@ ANY overlays on top of the content (like popups).
   }
   ```
 
-### When using Windows
+### When Using Windows
 
 - Put the fullscreen window on a non-main display.
-  If the content is on the primary display, an accidental click on the Windows-key will open the start-menu which will display on top of the output.
+  If the content is on the primary display, an accidental click on the Windows key will open the Windows Start menu which will display on top of the output.
 
 # API
 
@@ -72,7 +79,7 @@ _Note: If `apiKey` is set in config.json, all requests must include `?apiKey=API
 
 # For Developers
 
-## Getting started
+## Getting Started
 
 ```bash
 
@@ -80,7 +87,7 @@ yarn dev # or npm run dev
 
 ```
 
-## Build binary
+## Build Binary
 
 ```bash
 
@@ -88,7 +95,7 @@ yarn build:binary
 
 ```
 
-## For web pages rendered in Sofie Chef
+## For Web Pages Rendered in Sofie Chef
 
 If needed, the web page rendered inside Sofie Chef can be made aware that they are running inside by looking at the userAgent.
 
@@ -117,9 +124,13 @@ The Websockets API is exposed on the port `apiPort+1`. A description of the data
 
 # For Maintainers
 
-## Make a new release
+## Making a New Release
 
 1. `yarn release`
 2. Push the branch (and tag!) to GitHub
 3. Wait for the [Github Action](https://github.com/nrkno/sofie-chef/actions/workflows/create-release.yaml) to finish building the binaries.
 4. Go to [Releases](https://github.com/nrkno/sofie-chef/releases) and publish the release draft.
+
+---
+
+_The NRK logo is a registered trademark of Norsk rikskringkasting AS. The license does not grant any right to use, in any way, any trademarks, service marks or logos of Norsk rikskringkasting AS._
