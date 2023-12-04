@@ -3,17 +3,21 @@
 This is the _Chef_ application of the [**Sofie** TV Automation System](https://github.com/nrkno/Sofie-TV-automation/).
 It is a small Electron app, used to display web pages in fullscreen-, borderless- or usual windows.
 
-The intended use to display HTML graphics, video and camera inputs with low latency directly out to a TV studio screen.
+The intended use to display HTML graphics, video, and camera inputs with low latency directly out to a TV studio screen.
 
-Read our [Contribution Guidelines](CONTRIBUTING.md) and [Sofie System documentation](https://nrkno.github.io/sofie-core/).
+## General Sofie System Info
+* [Documentation](https://nrkno.github.io/sofie-core/)
+* [Releases](https://nrkno.github.io/sofie-core/releases)
+* [Contribution Guidelines](CONTRIBUTING.md)
+* [License](LICENSE)
 
 ---
 
-# Installation
+## Installation
 
 Windows & Linux: Download and install the latest release from [Releases](https://github.com/nrkno/sofie-chef/releases).
 
-# Usage
+## Usage
 
 When the application first starts, a `config.json`-file is created in the users home catalog (on windows, that's C:\Users\MY_USER\AppData\Roaming\sofie-chef\sofie-chef\config.json).
 
@@ -40,7 +44,7 @@ See [config.ts](src/lib/config.ts)
 Here are some tips for when you want to display something in fullscreen and want to avoid
 ANY overlays on top of the content (like popups).
 
-### General Tips
+## General Tips
 
 - In the config file, set:
   ```json
@@ -50,18 +54,18 @@ ANY overlays on top of the content (like popups).
   }
   ```
 
-### When Using Windows
+## When Using Windows
 
 - Put the fullscreen window on a non-main display.
   If the content is on the primary display, an accidental click on the Windows key will open the Windows Start menu which will display on top of the output.
 
-# API
+## APIs
 
-## Websocket API
+### Websocket API
 
 See types here for messages over websocket: [src/lib/api.ts](src/lib/api.ts)
 
-## Rest API
+### Rest API
 
 The API is exposed by default on http://localhost:5270
 
@@ -77,9 +81,9 @@ _Note: If `apiKey` is set in config.json, all requests must include `?apiKey=API
 | GET `/api/list`              |                                                                                                                                        | List windows                     |
 | GET `/api`                   |                                                                                                                                        | List API calls                   |
 
-# For Developers
+## For Developers
 
-## Getting Started
+### Getting Started
 
 ```bash
 
@@ -87,7 +91,7 @@ yarn dev # or npm run dev
 
 ```
 
-## Build Binary
+### Build Binary
 
 ```bash
 
@@ -95,7 +99,7 @@ yarn build:binary
 
 ```
 
-## For Web Pages Rendered in Sofie Chef
+### For Web Pages Rendered in Sofie Chef
 
 If needed, the web page rendered inside Sofie Chef can be made aware that they are running inside by looking at the userAgent.
 
@@ -114,7 +118,7 @@ if (window.reportChefStatus) {
 }
 ```
 
-## API
+### API
 
 When enabled via the `apiPort`-property in the `config.json` file, Sofie Chef exposes a HTTP REST and a Websockets API.
 
@@ -122,9 +126,9 @@ The HTTP REST API is exposed on the port `apiPort`. A list of methods can be fou
 
 The Websockets API is exposed on the port `apiPort+1`. A description of the data-interchange can be found here: [api.ts](/blob/main/src/lib/api.ts)
 
-# For Maintainers
+## For Maintainers
 
-## Making a New Release
+### Making a New Release
 
 1. `yarn release`
 2. Push the branch (and tag!) to GitHub
