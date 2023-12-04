@@ -5,9 +5,9 @@ It is a small Electron app, used to display web pages in fullscreen-, borderless
 
 The intended use to display HTML graphics, video, and camera inputs with low latency directly out to a TV studio screen.
 
-## General Sofie System Info
-* [Documentation](https://nrkno.github.io/sofie-core/)
-* [Releases](https://nrkno.github.io/sofie-core/releases)
+## General Sofie System Information
+* [_Sofie_ Documentation](https://nrkno.github.io/sofie-core/)
+* [_Sofie_ Releases](https://nrkno.github.io/sofie-core/releases)
 * [Contribution Guidelines](CONTRIBUTING.md)
 * [License](LICENSE)
 
