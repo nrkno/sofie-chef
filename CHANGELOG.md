@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.3](https://github.com/nrkno/sofie-chef/compare/v0.3.2...v0.3.3) (Mon Jan 08 2024)
+
+
+### Fixes
+
+* memory leak: Added listener to webContents without cleaning up previous listener [6b5ac10](https://github.com/nrkno/sofie-chef/commit/6b5ac1069304f9c828ab021a63294fbd41392ad8)
+* improve logging [93b9ed8](https://github.com/nrkno/sofie-chef/commit/93b9ed87501003265601c7622da5373a99985bdc)
+
 ## [0.3.2](https://github.com/nrkno/sofie-chef/compare/v0.3.1...v0.3.2) (Fri Nov 17 2023)
 
 
