@@ -86,6 +86,9 @@
 		"appImage": {
 			"artifactName": "SofieChef ${version} Linux Executable.${ext}"
 		},
+		"snap": {
+			"publish": "github"
+		},
 		"files": [
 			"dist/**/*",
 			"static/**/*"
