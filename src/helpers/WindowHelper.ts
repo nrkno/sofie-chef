@@ -210,18 +210,10 @@ export class WindowHelper extends EventEmitter {
 				await this.window.webContents.insertCSS(`html, body { background-color: ${defaultColor}; }`)
 			}
 
-			this.window.setTitle(this.title)
-			this.window.webContents.on('render-process-gone', (event, details) => {
-				if (details.reason !== 'clean-exit') {
-					this.status = {
-						statusCode: StatusCode.ERROR,
-						message: `Renderer process gone "${this._url}": ${details.reason}, ${details.exitCode}, "${event}"`,
-					}
-				}
-			})
-			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
+			this.setupWebContentListeners()
 
-			await this.listenToContentStatuses()
+			this.window.setTitle(this.title)
+			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
 
 			if (this.config.displayDebug) {
 				await this.displayDebugOverlay()
@@ -303,6 +295,14 @@ export class WindowHelper extends EventEmitter {
 			return windowUrl
 		}
 	}
+	private handleRenderProcessGone = (event: Electron.Event, details: Electron.RenderProcessGoneDetails): void => {
+		if (details.reason !== 'clean-exit') {
+			this.status = {
+				statusCode: StatusCode.ERROR,
+				message: `Renderer process gone "${this._url}": ${details.reason}, ${details.exitCode}, "${event}"`,
+			}
+		}
+	}
 	private handleConsoleMessage = (
 		_event: Electron.Event,
 		level: number,
@@ -316,7 +316,10 @@ export class WindowHelper extends EventEmitter {
 		}
 	}
 
-	private async listenToContentStatuses() {
+	private setupWebContentListeners() {
+		this.window.webContents.off('render-process-gone', this.handleRenderProcessGone)
+		this.window.webContents.on('render-process-gone', this.handleRenderProcessGone)
+
 		this.window.webContents.off('console-message', this.handleConsoleMessage)
 		this.window.webContents.on('console-message', this.handleConsoleMessage)
 	}
