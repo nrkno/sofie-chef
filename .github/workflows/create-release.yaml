@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '16'
       - name: restore node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -63,7 +63,7 @@ jobs:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
       - name: restore node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -91,7 +91,7 @@ jobs:
   #       with:
   #         node-version: '16'
   #     - name: restore node_modules
-  #       uses: actions/cache@v3
+  #       uses: actions/cache@v4
   #       with:
   #         path: |
   #           node_modules
