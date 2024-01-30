@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 16.x
       - name: restore node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
