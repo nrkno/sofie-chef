@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.4](https://github.com/nrkno/sofie-chef/compare/v0.3.3...v0.3.4) (Tue May 28 2024)
+
+
 ## [0.3.3](https://github.com/nrkno/sofie-chef/compare/v0.3.2...v0.3.3) (Mon Jan 08 2024)
 
 

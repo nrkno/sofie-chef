@@ -1,6 +1,6 @@
 {
 	"name": "sofie-chef",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"description": "Sofie Chef - Disrupting the industry & stirring pots",
 	"author": {
 		"name": "NRK"
@@ -81,7 +81,10 @@
 			"artifactName": "SofieChef ${version} macOS Installer.${ext}"
 		},
 		"nsis": {
-			"artifactName": "SofieChef ${version} Windows Installer.${ext}"
+			"artifactName": "SofieChef ${version} Windows Installer.${ext}",
+			"oneClick": false,
+			"perMachine": false,
+			"allowToChangeInstallationDirectory": true
 		},
 		"appImage": {
 			"artifactName": "SofieChef ${version} Linux Executable.${ext}"
