@@ -6,6 +6,7 @@ import { Logger } from '../lib/logging'
 import { ReportStatusIpcPayload, StatusCode, StatusObject } from '../lib/api'
 import * as path from 'path'
 import urlJoin = require('url-join')
+import { Queue } from '../lib/queue'
 
 export class WindowHelper extends EventEmitter {
 	private window: BrowserWindow
@@ -27,6 +28,8 @@ export class WindowHelper extends EventEmitter {
 	 */
 	private updateHash = 0
 
+	private queue = new Queue()
+
 	constructor(
 		private logger: Logger,
 		public readonly id: string,
@@ -35,6 +38,14 @@ export class WindowHelper extends EventEmitter {
 		private title: string
 	) {
 		super()
+
+		// Put the public methods in a queue, to ensure that they are run in order:
+		this.close = this.queue.bindMethod(this.close.bind(this), { reason: 'close' })
+		this.updateConfig = this.queue.bindMethod(this.updateConfig.bind(this), { reason: 'updateConfig' })
+		this.playURL = this.queue.bindMethod(this.playURL.bind(this), { reason: 'playURL' })
+		this.restart = this.queue.bindMethod(this.restart.bind(this))
+		this.stop = this.queue.bindMethod(this.stop.bind(this), { reason: 'stop' })
+		this.executeJavascript = this.queue.bindMethod(this.executeJavascript.bind(this))
 
 		this.window = new BrowserWindow({
 			height: this.config.height,
@@ -103,10 +114,12 @@ export class WindowHelper extends EventEmitter {
 	}
 	/** Closes the window. */
 	public async close(): Promise<void> {
+		// Note: This Method runs in a queue!
 		this.logger.info(`Closing window "${this.id}"`)
 		this.window.close()
 	}
 	public async updateConfig(sharedConfig: ConfigWindowShared, config: ConfigWindow): Promise<void> {
+		// Note: This Method runs in a queue!
 		const oldConfig = this._config
 		this._sharedConfig = sharedConfig
 		this._config = config
@@ -124,16 +137,19 @@ export class WindowHelper extends EventEmitter {
 	}
 	/** Restarts (reloads) the window. */
 	public async restart(): Promise<void> {
+		// Note: This Method runs in a queue!
 		return this._restart()
 	}
 	/** Play the specified URL in the window */
 	public async playURL(url: string | null): Promise<void> {
+		// Note: This Method runs in a queue!
 		return this._playURL(url)
 	}
 	/**
 	 * Stops playing the content in window
 	 */
 	public async stop(): Promise<void> {
+		// Note: This Method runs in a queue!
 		await this._playURL(null)
 	}
 	/**
