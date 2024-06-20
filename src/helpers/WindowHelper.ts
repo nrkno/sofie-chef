@@ -53,19 +53,19 @@ export class WindowHelper extends EventEmitter {
 
 		this.window.on('resized', () => {
 			this.logger.info(`Window "${this.id}": resized`)
-			this.updateSizeAndPosition()
+			this._updateSizeAndPosition()
 		})
 		this.window.on('moved', () => {
 			this.logger.info(`Window "${this.id}": moved`)
-			this.updateSizeAndPosition()
+			this._updateSizeAndPosition()
 		})
 		this.window.on('maximize', () => {
 			this.logger.info(`Window "${this.id}": maximized`)
-			this.updateSizeAndPosition()
+			this._updateSizeAndPosition()
 		})
 		this.window.on('unmaximize', () => {
 			this.logger.info(`Window "${this.id}": unmaximized`)
-			this.updateSizeAndPosition()
+			this._updateSizeAndPosition()
 		})
 		this.window.on('focus', () => {
 			this.emit('focus')
@@ -91,19 +91,17 @@ export class WindowHelper extends EventEmitter {
 	public get url(): string | null {
 		return this._url
 	}
-	// public get status(): StatusObject {
-	// 	return this._status
-	// }
 	public async init(): Promise<void> {
 		// Set the user-agent:
 		this.userAgent = this.window.webContents.getUserAgent() + ' sofie-chef'
 
-		await this.updateWindow()
+		await this._updateWindow()
 		// Trigger loading default page:
 		// await this.restart()
 		// await mainWindow.loadFile(path.join(__dirname, '../static/index.html'))
 		// await mainWindow.loadURL(`file://${app.getAppPath()}/dist/index.html`)
 	}
+	/** Closes the window. */
 	public async close(): Promise<void> {
 		this.logger.info(`Closing window "${this.id}"`)
 		this.window.close()
@@ -114,10 +112,128 @@ export class WindowHelper extends EventEmitter {
 		this._config = config
 
 		if (!_.isEqual(oldConfig, config)) {
-			await this.updateWindow(oldConfig)
+			await this._updateWindow(oldConfig)
 		}
 	}
-	public async updateWindow(oldConfig?: ConfigWindow): Promise<void> {
+	public toggleFullScreen(): void {
+		this.window.setFullScreen(!this.window.isFullScreen())
+		this._updateSizeAndPosition()
+	}
+	public toggleDevTools(): void {
+		this.window.webContents.toggleDevTools()
+	}
+	/** Restarts (reloads) the window. */
+	public async restart(): Promise<void> {
+		return this._restart()
+	}
+	/** Play the specified URL in the window */
+	public async playURL(url: string | null): Promise<void> {
+		return this._playURL(url)
+	}
+	/**
+	 * Stops playing the content in window
+	 */
+	public async stop(): Promise<void> {
+		await this._playURL(null)
+	}
+	/**
+	 * Executes a javascript inside the web player
+	 * (This Method runs in a queue.)
+	 */
+	public async executeJavascript(script: string): Promise<void> {
+		await this.window.webContents.executeJavaScript(script)
+	}
+	public getURL(): string {
+		const windowUrl = this._url ?? this._config.defaultURL
+
+		if (this._sharedConfig.baseURL && !windowUrl.match(/^(?:[a-z+]+:)?\/\//i)) {
+			// URL does not look absolute, add the baseURL
+			return urlJoin(this._sharedConfig.baseURL, windowUrl)
+		} else {
+			return windowUrl
+		}
+	}
+	public receiveExternalStatus(browserWindow: BrowserWindow, payload: ReportStatusIpcPayload): void {
+		if (browserWindow !== this.window) return
+
+		this.status = {
+			statusCode: payload.status,
+			message: payload.message || '',
+		}
+	}
+
+	public get status(): StatusObject {
+		let status = this._status
+		if (this._contentStatus && this._contentStatus.statusCode > status.statusCode) {
+			status = this._contentStatus
+		}
+		return status
+	}
+	private set status(status: StatusObject) {
+		if (this._status.statusCode !== status.statusCode || this._status.message !== status.message) {
+			this._status = status
+			this._emitStatus()
+		}
+	}
+
+	private async _playURL(url: string | null): Promise<void> {
+		if (this._url !== url) {
+			this._url = url
+
+			await this._restart()
+		}
+	}
+	/** Restarts (reloads) the window */
+	private async _restart(): Promise<void> {
+		delete this._contentStatus
+		const updateHash = ++this.updateHash
+
+		try {
+			const url = this.getURL() || 'about:blank'
+
+			this.logger.info(`Window "${this.id}": Load url "${url}"`)
+			await this.window.loadURL(url, {
+				userAgent: this.userAgent,
+			})
+			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
+
+			this.logger.info(`Window "${this.id}": Loaded url "${url}"`)
+			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
+			if (defaultColor) {
+				// Set the background color, to avoid white flashes when loading:
+				await this.window.webContents.insertCSS(`html, body { background-color: ${defaultColor}; }`)
+			}
+
+			this._setupWebContentListeners()
+
+			this.window.setTitle(this.title)
+			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
+
+			if (this.config.displayDebug) {
+				await this._displayDebugOverlay()
+			}
+
+			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
+
+			await this._injectUpdateCSS()
+		} catch (err) {
+			this.status = {
+				statusCode: StatusCode.ERROR,
+				message: `Error when loading "${this._url}": ${err}`,
+			}
+			throw err
+		}
+
+		this.status = {
+			statusCode: StatusCode.GOOD,
+			message: ``,
+		}
+	}
+
+	private _emitStatus() {
+		this.emit('status', this.status)
+	}
+	private async _updateWindow(oldConfig?: ConfigWindow): Promise<void> {
 		if (
 			this.config.x !== undefined &&
 			this.config.y !== undefined &&
@@ -166,111 +282,13 @@ export class WindowHelper extends EventEmitter {
 			this.config.hideCursor !== oldConfig?.hideCursor ||
 			this.config.hideScrollbar !== oldConfig?.hideScrollbar
 		) {
-			await this.restart()
+			await this._restart()
 		}
 
 		this.window.moveTop()
 	}
-	public hasFocus(): boolean {
-		return this.window.isFocused()
-	}
-	public toggleFullScreen(): void {
-		this.window.setFullScreen(!this.window.isFullScreen())
-		this.updateSizeAndPosition()
-	}
-	public toggleDevTools(): void {
-		this.window.webContents.toggleDevTools()
-	}
-	/** Play the specified URL in the window */
-	async playURL(url: string | null): Promise<void> {
-		if (this._url !== url) {
-			this._url = url
 
-			await this.restart()
-		}
-	}
-	/** Restarts (reloads) the window */
-	async restart(): Promise<void> {
-		delete this._contentStatus
-		const updateHash = ++this.updateHash
-
-		try {
-			const url = this.getURL() || 'about:blank'
-
-			this.logger.info(`Window "${this.id}": Load url "${url}"`)
-			await this.window.loadURL(url, {
-				userAgent: this.userAgent,
-			})
-			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
-
-			this.logger.info(`Window "${this.id}": Loaded url "${url}"`)
-			const defaultColor = this.config.defaultColor ?? '#000000' // ie: an empty string = don't set any color
-			if (defaultColor) {
-				// Set the background color, to avoid white flashes when loading:
-				await this.window.webContents.insertCSS(`html, body { background-color: ${defaultColor}; }`)
-			}
-
-			this.setupWebContentListeners()
-
-			this.window.setTitle(this.title)
-			this.window.webContents.setZoomFactor((this.config.zoomFactor ?? 100) / 100)
-
-			if (this.config.displayDebug) {
-				await this.displayDebugOverlay()
-			}
-
-			if (updateHash !== this.updateHash) return // Abort if the updateHash has changed
-
-			await this.injectUpdateCSS()
-		} catch (err) {
-			this.status = {
-				statusCode: StatusCode.ERROR,
-				message: `Error when loading "${this._url}": ${err}`,
-			}
-			throw err
-		}
-
-		this.status = {
-			statusCode: StatusCode.GOOD,
-			message: ``,
-		}
-	}
-	/** Stops playing the content in window */
-	async stop(): Promise<void> {
-		await this.playURL(null)
-	}
-	/** Executes a javascript inside the web player */
-	async executeJavascript(script: string): Promise<void> {
-		await this.window.webContents.executeJavaScript(script)
-	}
-
-	receiveExternalStatus(browserWindow: BrowserWindow, payload: ReportStatusIpcPayload): void {
-		if (browserWindow !== this.window) return
-
-		this.status = {
-			statusCode: payload.status,
-			message: payload.message || '',
-		}
-	}
-
-	public get status(): StatusObject {
-		let status = this._status
-		if (this._contentStatus && this._contentStatus.statusCode > status.statusCode) {
-			status = this._contentStatus
-		}
-		return status
-	}
-	private set status(status: StatusObject) {
-		if (this._status.statusCode !== status.statusCode || this._status.message !== status.message) {
-			this._status = status
-			this.emitStatus()
-		}
-	}
-	private emitStatus() {
-		this.emit('status', this.status)
-	}
-
-	private updateSizeAndPosition() {
+	private _updateSizeAndPosition() {
 		this.config.fullScreen = this.window.isFullScreen()
 
 		// No need to update position and size if it's fullscreen anyway.
@@ -285,17 +303,15 @@ export class WindowHelper extends EventEmitter {
 
 		this.emit('window-has-been-modified')
 	}
-	public getURL(): string {
-		const windowUrl = this._url ?? this._config.defaultURL
 
-		if (this._sharedConfig.baseURL && !windowUrl.match(/^(?:[a-z+]+:)?\/\//i)) {
-			// URL does not look absolute, add the baseURL
-			return urlJoin(this._sharedConfig.baseURL, windowUrl)
-		} else {
-			return windowUrl
-		}
+	private _setupWebContentListeners() {
+		this.window.webContents.off('render-process-gone', this._handleRenderProcessGone)
+		this.window.webContents.on('render-process-gone', this._handleRenderProcessGone)
+
+		this.window.webContents.off('console-message', this._handleConsoleMessage)
+		this.window.webContents.on('console-message', this._handleConsoleMessage)
 	}
-	private handleRenderProcessGone = (event: Electron.Event, details: Electron.RenderProcessGoneDetails): void => {
+	private _handleRenderProcessGone = (event: Electron.Event, details: Electron.RenderProcessGoneDetails): void => {
 		if (details.reason !== 'clean-exit') {
 			this.status = {
 				statusCode: StatusCode.ERROR,
@@ -303,7 +319,7 @@ export class WindowHelper extends EventEmitter {
 			}
 		}
 	}
-	private handleConsoleMessage = (
+	private _handleConsoleMessage = (
 		_event: Electron.Event,
 		level: number,
 		message: string,
@@ -315,15 +331,7 @@ export class WindowHelper extends EventEmitter {
 			this.logger.debug(`${this.id}: ${logMessage}`)
 		}
 	}
-
-	private setupWebContentListeners() {
-		this.window.webContents.off('render-process-gone', this.handleRenderProcessGone)
-		this.window.webContents.on('render-process-gone', this.handleRenderProcessGone)
-
-		this.window.webContents.off('console-message', this.handleConsoleMessage)
-		this.window.webContents.on('console-message', this.handleConsoleMessage)
-	}
-	private async displayDebugOverlay() {
+	private async _displayDebugOverlay() {
 		await this.window.webContents.executeJavaScript(`
 function setupMonitor() {
 	var overlay = document.createElement('div');
@@ -359,7 +367,7 @@ function setupMonitor() {
 }
 setupMonitor();`)
 	}
-	private async injectUpdateCSS() {
+	private async _injectUpdateCSS() {
 		if (this.config.hideCursor ?? true) {
 			// Hide cursor:
 			// This should hide the cursor for most elements that sets their own cursor
