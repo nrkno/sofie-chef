@@ -147,9 +147,9 @@ export class APIHelper {
 			ctx.body = `
 <a href="/api/status?apiKey=${this.config?.apiKey}">GET /api/status</a><br>
 <a href="/api/list?apiKey=${this.config?.apiKey}">GET /api/list</a><br>
-POST /api/playURL/:windowId body: {"url": "", "jsCode": "" }<br>
-POST /api/restart/:windowId<br>
-POST /api/stop/:windowId<br>
+PUT /api/playURL/:windowId body: {"url": "", "jsCode": "" }<br>
+PUT /api/restart/:windowId<br>
+PUT /api/stop/:windowId<br>
 POST /api/execute/:windowId body: {"jsCode": "" }<br>
 `
 		})
