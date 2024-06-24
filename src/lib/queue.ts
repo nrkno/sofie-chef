@@ -45,6 +45,8 @@ export class Queue {
 
 			q.reject(new Error(`Aborted, due to reason: "${reason}"`))
 		}
+		// Clear the queue, but leave any isRunning functions in place:
+		this.queue = this.queue.filter((q) => q.isRunning)
 	}
 
 	private checkQueue() {
