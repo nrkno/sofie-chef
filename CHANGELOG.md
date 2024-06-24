@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.3.5](https://github.com/nrkno/sofie-chef/compare/v0.3.4...v0.3.5) (Mon Jun 24 2024)
+
+
+### Fixes
+
+* clear queue clean up [321c233](https://github.com/nrkno/sofie-chef/commit/321c233b231a2cd51a226df2a482cd611ce5289e)
+* Add queue for window methods. [64447f1](https://github.com/nrkno/sofie-chef/commit/64447f10752d58f699b5a216351ba7558c3a8caf)
+
 ## [0.3.4](https://github.com/nrkno/sofie-chef/compare/v0.3.3...v0.3.4) (Tue May 28 2024)
 
 
