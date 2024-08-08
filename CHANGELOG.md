@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.4.0](https://github.com/nrkno/sofie-chef/compare/v0.3.5...v0.4.0) (Thu Aug 08 2024)
+
+
+### Features
+
+* attempts to upgrade the project from node16 to node20 [ad6ddb9](https://github.com/nrkno/sofie-chef/commit/ad6ddb987952f4547c1e24792b8e479b49adf8db)
+* bumps Electron to version 31 which gives Chromium 126 [d9df694](https://github.com/nrkno/sofie-chef/commit/d9df694b8e24acb488244e9b7e227d523f20330c)
+
 ## [0.3.5](https://github.com/nrkno/sofie-chef/compare/v0.3.4...v0.3.5) (Mon Jun 24 2024)
 
 
