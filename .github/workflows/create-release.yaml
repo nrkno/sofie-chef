@@ -61,7 +61,7 @@ jobs:
         with:
           node-version: '20'
       - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
+        uses: samuelmeuli/action-snapcraft@v3
       - name: restore node_modules
         uses: actions/cache@v4
         with:
