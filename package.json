@@ -39,7 +39,7 @@
 		"@types/url-join": "^4.0.1",
 		"@types/ws": "^8.5.6",
 		"concurrently": "^8.2.1",
-		"electron": "^31.0.0",
+		"electron": "^34.0.1",
 		"electron-builder": "^24.6.4",
 		"jest": "^29.7.0",
 		"nodemon": "^3.0.1",
@@ -96,5 +96,6 @@
 			"dist/**/*",
 			"static/**/*"
 		]
-	}
+	},
+	"packageManager": "yarn@3.6.3+sha512.d432ab8b22b89cb8b46649ebaf196159b0c1870904224771d75fdf8b55490aaa5de4d9f028deb0425f1513bff7843e97b9d117103795a23b12d2e7c1cedcf50f"
 }
