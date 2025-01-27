@@ -10,12 +10,13 @@
 		"build": "tsc",
 		"watch:build": "tsc -w",
 		"watch:electron": "nodemon --exec npm start",
-		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+		"lint": "run -T g:eslint . --ext .js,.jsx,.ts,.tsx",
 		"start": "electron ./dist/main.js",
 		"build:binary": "electron-builder",
 		"dev": "yarn && yarn build && concurrently --kill-others \"yarn watch:build\" \"yarn watch:electron\"",
 		"release:release": "sofie-version",
-		"release": "yarn release:release"
+		"release": "yarn release:release",
+		"g:eslint": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/eslint\""
 	},
 	"repository": "https://github.com/nrkno/sofie-chef",
 	"homepage": "https://github.com/nrkno/sofie-chef#readme",
