@@ -30,7 +30,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Prepare Environment
         run: |
-          yarn install
+					corepack enable
+          yarn
       - name: Run typecheck
         run: |
           yarn build

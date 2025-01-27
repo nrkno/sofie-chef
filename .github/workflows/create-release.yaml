@@ -39,6 +39,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Prepare Environment
         run: |
+					corepack enable
           yarn --ignore-engines --frozen-lockfile --network-timeout 1000000
       - name: Build
         run: |
