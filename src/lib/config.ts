@@ -22,6 +22,8 @@ export interface ConfigWindow {
 	/** Height of the window */
 	height: number
 
+	disable: boolean
+
 	/** Set to true to make the window fullscreen */
 	fullScreen: boolean
 	/** Set to true make the window always-on-top */
@@ -61,6 +63,7 @@ export const DEFAULT_CONFIG: Config = {
 	apiKey: '',
 	windows: {
 		default: {
+			disable: false,
 			x: undefined,
 			y: undefined,
 			width: 1280,

@@ -65,6 +65,8 @@ export class AllWindowsManager extends EventEmitter {
 		}
 
 		for (const [id, configWindow] of Object.entries<ConfigWindow>(config.windows)) {
+			if (configWindow.disable) continue
+
 			removeWindowIds.delete(id)
 
 			const window = this.windowsHandlers[id]

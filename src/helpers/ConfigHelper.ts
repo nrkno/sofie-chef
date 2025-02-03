@@ -127,6 +127,10 @@ export class ConfigHelper extends EventEmitter {
 				config.windows[windowId] = window
 			}
 		}
+
+		for (const window of Object.values<ConfigWindow>(config.windows)) {
+			if (window.disable === undefined) window.disable = false
+		}
 	}
 	/** Returns the path of the folder where we store the config file. */
 	private get homePath(): string {
