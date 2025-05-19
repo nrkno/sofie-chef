@@ -89,7 +89,7 @@ export class APIHelper {
 			}
 		})
 
-		router.all('(.*)', async (ctx, next) => {
+		router.all(/.*/, async (ctx, next) => {
 			// Intercept and authenticate:
 			const requestApiKey: string | undefined =
 				firstInArray(ctx.request.query?.apiKey) || // Querystring parameter
