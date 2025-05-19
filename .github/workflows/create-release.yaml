@@ -40,7 +40,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          yarn --ignore-engines --frozen-lockfile --network-timeout 1000000
+          yarn --frozen-lockfile --network-timeout 1000000
       - name: Build
         run: |
           yarn build
@@ -71,7 +71,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Prepare Environment
         run: |
-          yarn --ignore-engines --frozen-lockfile --network-timeout 1000000
+          corepack enable
+          yarn --frozen-lockfile --network-timeout 1000000
       - name: Build
         run: |
           yarn build
