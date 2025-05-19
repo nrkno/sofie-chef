@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit guidelines.
 
+## [0.4.2](https://github.com/nrkno/sofie-chef/compare/v0.4.0...v0.4.2) (Mon May 19 2025)
+
+
+### Fixes
+
+* add disable option in config [1d7eaf3](https://github.com/nrkno/sofie-chef/commit/1d7eaf3e9f634a128f6f3e5280498d7ef7c645ff)
+
 ## [0.4.1](https://github.com/nrkno/sofie-chef/compare/v0.4.0...v0.4.1) (Fri Jan 24 2025)
 
 
