@@ -18,8 +18,8 @@
 		"release": "yarn release:release",
 		"g:eslint": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/eslint\""
 	},
-	"repository": "https://github.com/nrkno/sofie-chef",
-	"homepage": "https://github.com/nrkno/sofie-chef#readme",
+	"repository": "https://github.com/Sofie-Automation/sofie-chef",
+	"homepage": "https://github.com/Sofie-Automation/sofie-chef#readme",
 	"keywords": [
 		"Electron",
 		"sofie",

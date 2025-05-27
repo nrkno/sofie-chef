@@ -1,21 +1,22 @@
 # Sofie Chef
 
-This is the _Chef_ application of the [**Sofie** TV Automation System](https://github.com/nrkno/Sofie-TV-automation/).
+This is the _Chef_ application of the [**Sofie** TV Automation System](https://github.com/Sofie-Automation/Sofie-TV-automation/).
 It is a small Electron app, used to display web pages in fullscreen-, borderless- or usual windows.
 
 The intended use to display HTML graphics, video, and camera inputs with low latency directly out to a TV studio screen.
 
 ## General Sofie System Information
-* [_Sofie_ Documentation](https://nrkno.github.io/sofie-core/)
-* [_Sofie_ Releases](https://nrkno.github.io/sofie-core/releases)
-* [Contribution Guidelines](CONTRIBUTING.md)
-* [License](LICENSE)
+
+- [_Sofie_ Documentation](https://sofie-automation.github.io/sofie-core//)
+- [_Sofie_ Releases](https://sofie-automation.github.io/sofie-core//releases)
+- [Contribution Guidelines](CONTRIBUTING.md)
+- [License](LICENSE)
 
 ---
 
 ## Installation
 
-Windows & Linux: Download and install the latest release from [Releases](https://github.com/nrkno/sofie-chef/releases).
+Windows & Linux: Download and install the latest release from [Releases](https://github.com/Sofie-Automation/sofie-chef/releases).
 
 ## Usage
 
@@ -132,8 +133,8 @@ The Websockets API is exposed on the port `apiPort+1`. A description of the data
 
 1. `yarn release`
 2. Push the branch (and tag!) to GitHub
-3. Wait for the [Github Action](https://github.com/nrkno/sofie-chef/actions/workflows/create-release.yaml) to finish building the binaries.
-4. Go to [Releases](https://github.com/nrkno/sofie-chef/releases) and publish the release draft.
+3. Wait for the [Github Action](https://github.com/Sofie-Automation/sofie-chef/actions/workflows/create-release.yaml) to finish building the binaries.
+4. Go to [Releases](https://github.com/Sofie-Automation/sofie-chef/releases) and publish the release draft.
 
 ---
 
